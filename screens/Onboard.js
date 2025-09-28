@@ -11,7 +11,7 @@ import {
 import React from "react";
 import { ArrowRight, MoveRight } from "lucide-react-native";
 
-const Onboard = () => {
+const Onboard = ({ navigation }) => {
   return (
     <View className="flex-1 justify-center items-center bg-white">
       <ImageBackground
@@ -32,12 +32,14 @@ const Onboard = () => {
       <View className="w-full px-4 absolute bottom-[120px]">
         <View className="flex-row items-center justify-between space-x-4 mb-6">
           <TouchableOpacity
+            onPress={() => navigation.navigate("Login")}
             activeOpacity={0.8}
             className="bg-white p-[10px] flex-1 rounded-lg items-center w-[220px]"
           >
             <Text className="font-[500]">Login</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            onPress={() => navigation.navigate("Signup")}
             activeOpacity={0.8}
             className="bg-[#A7CC48] p-[10px] flex-1 rounded-lg items-center w-[220px]"
           >

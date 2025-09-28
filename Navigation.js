@@ -3,6 +3,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 const Stack = createNativeStackNavigator();
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Onboard from "./screens/Onboard";
+import Login from "./screens/Login";
+import Signup from "./screens/Signup";
 
 const SignedOutStack = () => {
   //   NavigationBar.setBackgroundColorAsync("white");
@@ -14,6 +16,8 @@ const SignedOutStack = () => {
       }}
     >
       <Stack.Screen name="Onboard" component={Onboard} />
+      <Stack.Screen name="Login" component={Login} />
+      <Stack.Screen name="Signup" component={Signup} />
       {/* <Stack.Screen name="OpenHome" component={OpenHome} />
       <Stack.Screen name="PollDetails" component={PollDetails} /> */}
       {/* <Stack.Screen name="Login" component={Login} />
