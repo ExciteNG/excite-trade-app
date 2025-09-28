@@ -1,16 +1,20 @@
 /** @format */
 
+import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
+import { SignedOutStack } from "./Navigation";
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text className="text-blue-500">
-        Open up App.js to start working on your app!
-      </Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      {/* <Toast
+        ref={(ref) => {
+          toast.ref = ref;
+        }}
+      /> */}
+      <SignedOutStack />
+    </NavigationContainer>
   );
 }
 

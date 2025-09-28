@@ -25,3 +25,5 @@ const SignedOutStack = () => {
     </Stack.Navigator>
   );
 };
+
+export { SignedOutStack };
