@@ -2,6 +2,9 @@
 import { View, Text, StatusBar, Image, TouchableOpacity } from "react-native";
 import { useState } from "react";
 import { ArrowLeft, Globe } from "lucide-react-native";
+import OffTakerSignup from "./offtakers/OffTakerSignup";
+import FarmerSignup from "./farmers/FarmerSignup";
+import GemSignup from "./gemexcite/GemSignup";
 
 const Signup = ({ navigation }) => {
   const tabs = ["Offtakers", "Farmers/Miners", "Gem Excite"];
@@ -29,7 +32,7 @@ const Signup = ({ navigation }) => {
         />
       </View>
       {/* tabs view */}
-      <View className="flex-row justify-around items-center mt-4 border border-gray-300 rounded mx-6 py-1">
+      <View className="flex-row justify-around items-center mt-4 mb-2 border border-gray-300 rounded mx-6 py-1">
         {tabs.map((tab, index) => (
           <TouchableOpacity
             key={index}
@@ -48,6 +51,10 @@ const Signup = ({ navigation }) => {
           </TouchableOpacity>
         ))}
       </View>
+      {/* tabs screens */}
+      {currentTab === "Offtakers" && <OffTakerSignup />}
+      {currentTab === "Farmers/Miners" && <FarmerSignup />}
+      {currentTab === "Gem Excite" && <GemSignup />}
     </View>
   );
 };

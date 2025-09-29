@@ -13,7 +13,7 @@ import { ArrowLeft, Eye, EyeOff } from "lucide-react-native";
 
 const Login = ({ navigation }) => {
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // <-- Add this line
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <View className="flex-1 bg-white px-5">
