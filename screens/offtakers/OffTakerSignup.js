@@ -11,7 +11,7 @@ import { useState, useEffect } from "react";
 import { Dropdown } from "react-native-element-dropdown";
 import { Eye, EyeOff } from "lucide-react-native";
 
-const OffTakerSignup = () => {
+const OffTakerSignup = ({ navigation }) => {
   const [country, setCountry] = useState("");
   const [isFocus, setIsFocus] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
