@@ -33,7 +33,7 @@ const TabsScreen = () => {
   const hasHomeIndicator = height >= 810; // Assuming iPhone X and later have a home indicator
 
   const androidTabBarStyle = {
-    height: 90,
+    height: 55,
     paddingTop: 0,
     shadowColor: "black",
     borderColor: "whitesmoke",
