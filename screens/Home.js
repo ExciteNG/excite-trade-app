@@ -10,6 +10,7 @@ import {
 import React from "react";
 import { Bell, Search } from "lucide-react-native";
 import Categories from "../components/Categories";
+import TopCommodities from "../components/TopCommodities";
 
 const Home = () => {
   return (
@@ -43,6 +44,7 @@ const Home = () => {
       </View>
       {/* commodities category */}
       <Categories />
+      <TopCommodities />
     </View>
   );
 };
