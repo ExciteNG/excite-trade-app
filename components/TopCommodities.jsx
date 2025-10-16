@@ -30,14 +30,15 @@ const data = [
 const TopCommodities = () => {
   return (
     <ScrollView
+      style={{ flexGrow: 0 }}
       horizontal
-      showsVerticalScrollIndicator={false}
-      className="p-5 space-x-3 mt-2 h-[350px]"
+      showsHorizontalScrollIndicator={false}
+      className="p-5 space-x-3 mt-2 mb-8"
     >
       {data.map((item, index) => (
         <TouchableOpacity
           key={index}
-          className="flex items-start w-[300px] h-[200px] relative"
+          className="flex items-start w-[300px] h-[230px] relative"
         >
           <Image source={item.image} className="h-[130px] w-full rounded" />
           <Text className="font-[600] text-[14px] my-[2px]">{item.name}</Text>

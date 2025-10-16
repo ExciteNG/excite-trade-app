@@ -45,6 +45,7 @@ const Home = () => {
       {/* commodities category */}
       <Categories />
       <TopCommodities />
+      {/* <TopCommodities /> */}
     </View>
   );
 };

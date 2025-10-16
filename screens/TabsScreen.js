@@ -20,8 +20,8 @@ import {
   User,
 } from "lucide-react-native";
 import Home from "./Home";
-import Explore from "./Explore";
 import Profile from "./Profile";
+import Explore from "./Explore";
 import Orders from "./Orders";
 
 export const { height, width } = Dimensions.get("window");
