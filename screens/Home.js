@@ -12,7 +12,7 @@ import { Bell, Search } from "lucide-react-native";
 import Categories from "../components/Categories";
 import TopCommodities from "../components/TopCommodities";
 
-const Home = () => {
+const Home = ({ navigation }) => {
   return (
     <View className="flex-1 bg-white">
       <StatusBar backgroundColor={"white"} barStyle="dark-content" />
@@ -44,7 +44,7 @@ const Home = () => {
       </View>
       {/* commodities category */}
       <Categories />
-      <TopCommodities />
+      <TopCommodities navigation={navigation} />
       {/* <TopCommodities /> */}
     </View>
   );

@@ -9,6 +9,7 @@ import Home from "./screens/Home";
 import TabsScreen from "./screens/TabsScreen";
 import Explore from "./screens/Explore";
 import Orders from "./screens/Orders";
+import ProductDetails from "./screens/ProductDetails";
 
 const SignedOutStack = () => {
   //   NavigationBar.setBackgroundColorAsync("white");
@@ -47,6 +48,7 @@ const SignedInStack = () => {
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Explore" component={Explore} />
       <Stack.Screen name="Orders" component={Orders} />
+      <Stack.Screen name="ProductDetails" component={ProductDetails} />
     </Stack.Navigator>
   );
 };

@@ -27,7 +27,7 @@ const data = [
   },
 ];
 
-const TopCommodities = () => {
+const TopCommodities = ({ navigation }) => {
   return (
     <ScrollView
       style={{ flexGrow: 0 }}
@@ -37,6 +37,7 @@ const TopCommodities = () => {
     >
       {data.map((item, index) => (
         <TouchableOpacity
+          onPress={() => navigation?.navigate("ProductDetails")}
           key={index}
           className="flex items-start w-[300px] h-[230px] relative"
         >
