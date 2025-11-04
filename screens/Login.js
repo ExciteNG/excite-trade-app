@@ -1,5 +1,4 @@
 /** @format */
-
 import {
   View,
   Text,
@@ -7,13 +6,50 @@ import {
   TextInput,
   TouchableOpacity,
   StatusBar,
+  ActivityIndicator,
 } from "react-native";
 import React, { useState } from "react";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react-native";
+import { url } from "../url";
+import axios from "axios";
+import { toast } from "../components/Toast";
 
 const Login = ({ navigation }) => {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const login = async () => {
+    try {
+      setLoading(true);
+      const { data } = await axios.post(`${url}/auth/login`, {
+        email,
+        password,
+      });
+      console.log(data);
+      toast.show({
+        title: "Success",
+        status: "success",
+        message: "login successful",
+      });
+      setLoading(false);
+    } catch (error) {
+      setLoading(false);
+      const errMsg = error?.response?.data?.message || error.message;
+      console.log(errMsg);
+      if (errMsg === "Email is not verified, check mail for verification") {
+        navigation.replace("VerifyEmail");
+        return;
+      }
+      // Show error toast
+      toast.show({
+        title: "Login Failed",
+        status: "error",
+        message: errMsg,
+      });
+    }
+  };
 
   return (
     <View className="flex-1 bg-white px-5">
@@ -42,6 +78,8 @@ const Login = ({ navigation }) => {
       <TextInput
         className="w-full h-[43px] rounded p-2 border border-gray-400 mt-1"
         placeholder="Enter your email"
+        value={email}
+        onChangeText={(val) => setEmail(val)}
       />
       <View className="mt-[18px]">
         <Text className="font-[500] text-gray-800 text-[12px]">Password</Text>
@@ -78,8 +116,16 @@ const Login = ({ navigation }) => {
         <Text className="text-gray-500">Forgot Password?</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity className="bg-[#A7CC48] h-[43px] rounded justify-center items-center mt-8">
-        <Text className="font-[500]">Login</Text>
+      <TouchableOpacity
+        onPress={login}
+        activeOpacity={0.7}
+        className="bg-[#A7CC48] h-[43px] flex rounded justify-center items-center mt-8"
+      >
+        {loading ? (
+          <ActivityIndicator size={"small"} color={"black"} />
+        ) : (
+          <Text className="font-[500]">Login</Text>
+        )}
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => navigation.navigate("Signup")}
