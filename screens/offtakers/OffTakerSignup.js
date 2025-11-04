@@ -7,12 +7,14 @@ import {
   TextInput,
   StyleSheet,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { useState, useEffect } from "react";
 import { Dropdown } from "react-native-element-dropdown";
 import { Eye, EyeOff } from "lucide-react-native";
 import axios from "axios";
 import { url } from "../../url";
+import { toast } from "../../components/Toast";
 
 const OffTakerSignup = ({ navigation }) => {
   const [country, setCountry] = useState({});
@@ -33,6 +35,7 @@ const OffTakerSignup = ({ navigation }) => {
 
   const signup = async () => {
     try {
+      setLoading(true);
       const { data } = await axios.post(`${url}/auth/signup`, {
         country: country.name,
         email,
@@ -40,11 +43,29 @@ const OffTakerSignup = ({ navigation }) => {
         phoneNumber: "",
         userType,
       });
-    } catch (error) {}
+      setLoading(false);
+      toast.show({
+        title: "Success",
+        status: "success",
+        message: "signup successful, check your email",
+      });
+      navigation.navigate("VerifyEmail");
+    } catch (error) {
+      setLoading(false);
+      const errMsg = error?.response?.data?.message || error.message;
+      console.log(errMsg);
+
+      // Show error toast
+      toast.show({
+        title: "Login Failed",
+        status: "error",
+        message: errMsg,
+      });
+    }
   };
 
   return (
-    <View className="px-2 m-3 ">
+    <ScrollView showsVerticalScrollIndicator={false} className="px-2 m-3 ">
       <Text className="font-[600] text-[18px]">Join Excite Trade for Free</Text>
       <Text className="text-[13px] text-gray-500 mt-0">
         Sign up for an account and start buying today
@@ -83,6 +104,18 @@ const OffTakerSignup = ({ navigation }) => {
       <TextInput
         className="w-full h-[44px] rounded p-2 border border-gray-400 mt-1"
         placeholder="Enter your work email"
+        value={email}
+        onChangeText={(val) => setEmail(val)}
+      />
+      <Text className="mt-4 text-gray-800 text-[12px] font-[500]">
+        Phone No
+      </Text>
+      <TextInput
+        className="w-full h-[44px] rounded p-2 border border-gray-400 mt-1"
+        placeholder="080*******"
+        value={phone}
+        onChangeText={(val) => setPhone(val)}
+        keyboardType="numeric"
       />
       <View className="mt-[18px]">
         <Text className="font-[500] text-gray-800 text-[12px]">Password</Text>
@@ -112,8 +145,16 @@ const OffTakerSignup = ({ navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
-      <TouchableOpacity className="bg-[#A7CC48] h-[43px] rounded justify-center items-center mt-8">
-        <Text className="font-[500]">Proceed</Text>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={signup}
+        className="bg-[#A7CC48] h-[43px] rounded flex justify-center items-center mt-8"
+      >
+        {loading ? (
+          <ActivityIndicator color={"black"} size={"small"} />
+        ) : (
+          <Text className="font-[500]">Proceed</Text>
+        )}
       </TouchableOpacity>
       <TouchableOpacity className="mt-2">
         <Text className="text-[11px]">
@@ -123,14 +164,14 @@ const OffTakerSignup = ({ navigation }) => {
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        onPress={() => navigation.navigate("Signup")}
+        onPress={() => navigation.navigate("Login")}
         className="mt-4 flex-row justify-center items-center"
         activeOpacity={0.7}
       >
         <Text>Already have an account? </Text>
         <Text className="text-[#A7CC48] font-[500]">Login</Text>
       </TouchableOpacity>
-    </View>
+    </ScrollView>
   );
 };
 

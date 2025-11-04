@@ -52,9 +52,11 @@ const Signup = ({ navigation }) => {
         ))}
       </View>
       {/* tabs screens */}
-      {currentTab === "Offtakers" && <OffTakerSignup />}
-      {currentTab === "Farmers/Miners" && <FarmerSignup />}
-      {currentTab === "Gem Excite" && <GemSignup />}
+      {currentTab === "Offtakers" && <OffTakerSignup navigation={navigation} />}
+      {currentTab === "Farmers/Miners" && (
+        <FarmerSignup navigation={navigation} />
+      )}
+      {currentTab === "Gem Excite" && <GemSignup navigation={navigation} />}
     </View>
   );
 };
