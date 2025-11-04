@@ -10,6 +10,10 @@ import TabsScreen from "./screens/TabsScreen";
 import Explore from "./screens/Explore";
 import Orders from "./screens/Orders";
 import ProductDetails from "./screens/ProductDetails";
+import { useState } from "react";
+import SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
+import VerifyEmail from "./screens/VerifyEmail";
 
 const SignedOutStack = () => {
   //   NavigationBar.setBackgroundColorAsync("white");
@@ -23,6 +27,7 @@ const SignedOutStack = () => {
       <Stack.Screen name="Onboard" component={Onboard} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={Signup} />
+      <Stack.Screen name="VerifyEmail" component={VerifyEmail} />
       {/* <Stack.Screen name="OpenHome" component={OpenHome} />
       <Stack.Screen name="PollDetails" component={PollDetails} /> */}
       {/* <Stack.Screen name="Login" component={Login} />
@@ -53,4 +58,31 @@ const SignedInStack = () => {
   );
 };
 
-export { SignedOutStack, SignedInStack };
+const AuthStack = () => {
+  // const { userInfo } = useSelector((state) => state.loginReducer);
+  const [user, setUser] = useState(null);
+  // console.log(user);
+
+  SplashScreen?.preventAutoHideAsync();
+
+  const getUserInfo = async () => {
+    const userInfo = await AsyncStorage.getItem("userInfo");
+    // console.log(userInfo);
+    if (userInfo) {
+      setUser(JSON.parse(userInfo));
+    } else {
+      setUser(null);
+    }
+    setTimeout(() => {
+      SplashScreen?.hideAsync();
+    }, 1000);
+  };
+
+  useEffect(() => {
+    getUserInfo();
+  }, [user]);
+
+  return <>{user ? <SignedInStack /> : <SignedOutStack />}</>;
+};
+
+export { SignedOutStack, SignedInStack, AuthStack };

@@ -6,16 +6,23 @@ import {
   TouchableOpacity,
   TextInput,
   StyleSheet,
+  ActivityIndicator,
 } from "react-native";
 import { useState, useEffect } from "react";
 import { Dropdown } from "react-native-element-dropdown";
 import { Eye, EyeOff } from "lucide-react-native";
+import axios from "axios";
+import { url } from "../../url";
 
 const OffTakerSignup = ({ navigation }) => {
-  const [country, setCountry] = useState("");
+  const [country, setCountry] = useState({});
   const [isFocus, setIsFocus] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const userType = "Offtaker";
+  const [loading, setLoading] = useState(false);
 
   const countries = [
     { name: "Nigeria" },
@@ -23,6 +30,19 @@ const OffTakerSignup = ({ navigation }) => {
     { name: "Senegal" },
     { name: "United States" },
   ];
+
+  const signup = async () => {
+    try {
+      const { data } = await axios.post(`${url}/auth/signup`, {
+        country: country.name,
+        email,
+        password,
+        phoneNumber: "",
+        userType,
+      });
+    } catch (error) {}
+  };
+
   return (
     <View className="px-2 m-3 ">
       <Text className="font-[600] text-[18px]">Join Excite Trade for Free</Text>
