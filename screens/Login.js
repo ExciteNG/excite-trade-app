@@ -13,12 +13,15 @@ import { ArrowLeft, Eye, EyeOff } from "lucide-react-native";
 import { url } from "../url";
 import axios from "axios";
 import { toast } from "../components/Toast";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useDispatch } from "react-redux";
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
 
   const login = async () => {
     try {
@@ -27,12 +30,16 @@ const Login = ({ navigation }) => {
         email,
         password,
       });
-      console.log(data);
+      console.log(data?.data);
       toast.show({
         title: "Success",
         status: "success",
         message: "login successful",
       });
+      dispatch({ type: "LOGIN_SUCCESS", payload: data?.data });
+      await AsyncStorage.setItem("token", data?.data?.token);
+      await AsyncStorage.setItem("userInfo", JSON.stringify(data?.data));
+      dispatch({ type: "LOGIN_SUCCESS", payload: data?.data });
       setLoading(false);
     } catch (error) {
       setLoading(false);

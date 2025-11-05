@@ -1,7 +1,7 @@
 /** @format */
 
 import React from "react";
-import { View, Text, TouchableOpacity, StatusBar } from "react-native";
+import { View, Text, TouchableOpacity, StatusBar, Modal } from "react-native";
 import {
   ArrowLeft,
   Heart,
@@ -11,6 +11,7 @@ import {
   Bookmark,
   LogOut,
 } from "lucide-react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Row = ({ Icon, title, subtitle, onPress, tint }) => (
   <TouchableOpacity
@@ -41,6 +42,15 @@ const Profile = ({ navigation }) => {
   const initials = "JD";
   const name = "John Doe";
   const company = "Company name";
+  const [showModal, setShowModal] = React.useState(false);
+  // const dispatch = useDispatch();
+
+  const logout = async () => {
+    setShowModal(false);
+    // dispatch({ type: "USER_LOGOUT" });
+    await AsyncStorage.removeItem("userInfo");
+    await AsyncStorage.removeItem("accessToken");
+  };
 
   return (
     <View className="flex-1 bg-white px-4">
@@ -117,7 +127,7 @@ const Profile = ({ navigation }) => {
         <TouchableOpacity
           activeOpacity={0.7}
           className="flex-row items-center py-4 px-2"
-          onPress={() => {}}
+          onPress={() => setShowModal(true)}
         >
           <View className="h-12 w-12 rounded-full bg-gray-100 items-center justify-center">
             <LogOut size={20} color="#EF4444" />
@@ -127,6 +137,77 @@ const Profile = ({ navigation }) => {
           </View>
         </TouchableOpacity>
       </View>
+      {/* Logout Confirmation Modal */}
+      <Modal
+        visible={showModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowModal(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.4)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "white",
+              borderRadius: 10,
+              padding: 24,
+              width: "80%",
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{ fontSize: 16, fontWeight: "bold", marginBottom: 12 }}
+            >
+              Logout
+            </Text>
+            <Text
+              style={{ fontSize: 14, marginBottom: 24, textAlign: "center" }}
+            >
+              Are you sure you want to logout?
+            </Text>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: "#f3f4f6",
+                  padding: 10,
+                  borderRadius: 6,
+                  marginRight: 8,
+                  alignItems: "center",
+                }}
+                onPress={() => setShowModal(false)}
+              >
+                <Text style={{ color: "#111" }}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: "#ef4444",
+                  padding: 10,
+                  borderRadius: 6,
+                  marginLeft: 8,
+                  alignItems: "center",
+                }}
+                onPress={logout}
+              >
+                <Text style={{ color: "white" }}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

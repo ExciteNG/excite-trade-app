@@ -14,6 +14,7 @@ import { useState } from "react";
 import SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import VerifyEmail from "./screens/VerifyEmail";
+import { useSelector } from "react-redux";
 
 const SignedOutStack = () => {
   //   NavigationBar.setBackgroundColorAsync("white");
@@ -59,9 +60,8 @@ const SignedInStack = () => {
 };
 
 const AuthStack = () => {
-  // const { userInfo } = useSelector((state) => state.loginReducer);
+  const { userInfo } = useSelector((state) => state.loginReducer);
   const [user, setUser] = useState(null);
-  // console.log(user);
 
   SplashScreen?.preventAutoHideAsync();
 
@@ -80,7 +80,7 @@ const AuthStack = () => {
 
   useEffect(() => {
     getUserInfo();
-  }, [user]);
+  }, [user, userInfo]);
 
   return <>{user ? <SignedInStack /> : <SignedOutStack />}</>;
 };

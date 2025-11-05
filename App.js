@@ -5,18 +5,22 @@ import { StyleSheet, Text, View } from "react-native";
 import { AuthStack, SignedInStack, SignedOutStack } from "./Navigation";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { toast, Toast } from "./components/Toast";
+import store from "./redux/store";
+import { Provider } from "react-redux";
 
 export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer>
-        <Toast
-          ref={(ref) => {
-            toast.ref = ref;
-          }}
-        />
-        <AuthStack />
-      </NavigationContainer>
+      <Provider store={store}>
+        <NavigationContainer>
+          <Toast
+            ref={(ref) => {
+              toast.ref = ref;
+            }}
+          />
+          <AuthStack />
+        </NavigationContainer>
+      </Provider>
     </GestureHandlerRootView>
   );
 }
