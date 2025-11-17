@@ -36,10 +36,11 @@ const Login = ({ navigation }) => {
         status: "success",
         message: "login successful",
       });
-      dispatch({ type: "LOGIN_SUCCESS", payload: data?.data });
+      // dispatch({ type: "LOGIN_SUCCESS", payload: data?.data });
       await AsyncStorage.setItem("token", data?.data?.token);
       await AsyncStorage.setItem("userInfo", JSON.stringify(data?.data));
       dispatch({ type: "LOGIN_SUCCESS", payload: data?.data });
+
       setLoading(false);
     } catch (error) {
       setLoading(false);

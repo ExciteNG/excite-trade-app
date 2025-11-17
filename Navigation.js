@@ -15,6 +15,8 @@ import SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import VerifyEmail from "./screens/VerifyEmail";
 import { useSelector } from "react-redux";
+import OrganizationOnboard from "./screens/offtakers/OrganizationOnboard";
+import CommoditiesOnboard from "./screens/offtakers/CommoditiesOnboard";
 
 const SignedOutStack = () => {
   //   NavigationBar.setBackgroundColorAsync("white");
@@ -42,20 +44,55 @@ const SignedOutStack = () => {
 };
 
 const SignedInStack = () => {
-  //   NavigationBar.setBackgroundColorAsync("white");
+  const [user, setUser] = useState(null);
+
+  const getUserInfo = async () => {
+    const userInfo = await AsyncStorage.getItem("userInfo");
+    // console.log(userInfo);
+    if (userInfo) {
+      setUser(JSON.parse(userInfo));
+    } else {
+      setUser(null);
+    }
+  };
+
+  useEffect(() => {
+    getUserInfo();
+  }, [user]);
+
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-        animation: "slide_from_right",
-      }}
-    >
-      <Stack.Screen name="TabsScreen" component={TabsScreen} />
-      <Stack.Screen name="Home" component={Home} />
-      <Stack.Screen name="Explore" component={Explore} />
-      <Stack.Screen name="Orders" component={Orders} />
-      <Stack.Screen name="ProductDetails" component={ProductDetails} />
-    </Stack.Navigator>
+    <>
+      {user?.status === "Pending" ? (
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            animation: "slide_from_right",
+          }}
+        >
+          <Stack.Screen
+            name="OrganizationOnboard"
+            component={OrganizationOnboard}
+          />
+          <Stack.Screen
+            name="CommoditiesOnboard"
+            component={CommoditiesOnboard}
+          />
+        </Stack.Navigator>
+      ) : (
+        <Stack.Navigator
+          screenOptions={{
+            headerShown: false,
+            animation: "slide_from_right",
+          }}
+        >
+          <Stack.Screen name="TabsScreen" component={TabsScreen} />
+          <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen name="Explore" component={Explore} />
+          <Stack.Screen name="Orders" component={Orders} />
+          <Stack.Screen name="ProductDetails" component={ProductDetails} />
+        </Stack.Navigator>
+      )}
+    </>
   );
 };
 
