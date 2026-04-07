@@ -2,6 +2,7 @@
 
 import React from "react";
 import { View, Text, TouchableOpacity, StatusBar, Modal } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   ArrowLeft,
   Heart,
@@ -53,11 +54,11 @@ const Profile = ({ navigation }) => {
   };
 
   return (
-    <View className="flex-1 bg-white px-4">
+    <SafeAreaView className="flex-1 bg-white px-4">
       <StatusBar backgroundColor={"white"} barStyle="dark-content" />
 
       {/* header */}
-      <View className="flex-row items-center h-[60px] w-full mt-2">
+      <View className="flex-row items-center h-[60px] w-full">
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => navigation?.goBack && navigation.goBack()}
@@ -208,7 +209,7 @@ const Profile = ({ navigation }) => {
           </View>
         </View>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 

@@ -1,101 +1,110 @@
 /** @format */
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-const Stack = createNativeStackNavigator();
+import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import SplashScreen from "expo-splash-screen";
+import { useSelector } from "react-redux";
+
+// Auth screens
 import Onboard from "./screens/Onboard";
 import Login from "./screens/Login";
 import Signup from "./screens/Signup";
-import Home from "./screens/Home";
-import TabsScreen from "./screens/TabsScreen";
-import Explore from "./screens/Explore";
-import Orders from "./screens/Orders";
-import ProductDetails from "./screens/ProductDetails";
-import { useState } from "react";
-import SplashScreen from "expo-splash-screen";
-import { useEffect } from "react";
 import VerifyEmail from "./screens/VerifyEmail";
-import { useSelector } from "react-redux";
+
+// Offtaker onboarding
 import OrganizationOnboard from "./screens/offtakers/OrganizationOnboard";
 import CommoditiesOnboard from "./screens/offtakers/CommoditiesOnboard";
 
-const SignedOutStack = () => {
-  //   NavigationBar.setBackgroundColorAsync("white");
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: false,
-        animation: "slide_from_right",
-      }}
-    >
-      <Stack.Screen name="Onboard" component={Onboard} />
-      <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="Signup" component={Signup} />
-      <Stack.Screen name="VerifyEmail" component={VerifyEmail} />
-      {/* <Stack.Screen name="OpenHome" component={OpenHome} />
-      <Stack.Screen name="PollDetails" component={PollDetails} /> */}
-      {/* <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="Register" component={Register} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-      <Stack.Screen name="VerifyOtp" component={VerifyOtp} />
-      <Stack.Screen name="VerifyResetOtp" component={VerifyResetOtp} />
-      <Stack.Screen name="ResetPassword" component={ResetPassword} /> */}
-    </Stack.Navigator>
-  );
-};
+// Role tab navigators
+import FarmerTabNavigator from "./screens/farmers/FarmerTabNavigator";
+import GemTabNavigator from "./screens/gemexcite/GemTabNavigator";
+import OfftakerTabNavigator from "./screens/offtakers/OfftakerTabNavigator";
 
+const Stack = createNativeStackNavigator();
+
+// ─── Signed-Out Stack ────────────────────────────────────────────────────────
+const SignedOutStack = () => (
+  <Stack.Navigator
+    screenOptions={{ headerShown: false, animation: "slide_from_right" }}
+  >
+    <Stack.Screen name="Onboard" component={Onboard} />
+    <Stack.Screen name="Login" component={Login} />
+    <Stack.Screen name="Signup" component={Signup} />
+    <Stack.Screen name="VerifyEmail" component={VerifyEmail} />
+  </Stack.Navigator>
+);
+
+// ─── Farmer Signed-In Stack ─────────────────────────────────────────────────
+const FarmerSignedInStack = () => (
+  <Stack.Navigator
+    screenOptions={{ headerShown: false, animation: "slide_from_right" }}
+  >
+    <Stack.Screen name="FarmerTabs" component={FarmerTabNavigator} />
+  </Stack.Navigator>
+);
+
+// ─── GemExcite Signed-In Stack ───────────────────────────────────────────────
+const GemExciteSignedInStack = () => (
+  <Stack.Navigator
+    screenOptions={{ headerShown: false, animation: "slide_from_right" }}
+  >
+    <Stack.Screen name="GemTabs" component={GemTabNavigator} />
+  </Stack.Navigator>
+);
+
+// ─── Offtaker / Default Signed-In Stack ─────────────────────────────────────
+const DefaultSignedInStack = () => (
+  <Stack.Navigator
+    screenOptions={{ headerShown: false, animation: "slide_from_right" }}
+  >
+    <Stack.Screen name="OfftakerTabs" component={OfftakerTabNavigator} />
+  </Stack.Navigator>
+);
+
+// ─── Onboarding Stack (Pending users) ────────────────────────────────────────
+const OnboardingStack = () => (
+  <Stack.Navigator
+    screenOptions={{ headerShown: false, animation: "slide_from_right" }}
+  >
+    <Stack.Screen name="OrganizationOnboard" component={OrganizationOnboard} />
+    <Stack.Screen name="CommoditiesOnboard" component={CommoditiesOnboard} />
+  </Stack.Navigator>
+);
+
+// ─── Signed-In Stack — routes based on userType ─────────────────────────────
 const SignedInStack = () => {
   const [user, setUser] = useState(null);
 
   const getUserInfo = async () => {
-    const userInfo = await AsyncStorage.getItem("userInfo");
-    // console.log(userInfo);
-    if (userInfo) {
-      setUser(JSON.parse(userInfo));
-    } else {
-      setUser(null);
-    }
+    const raw = await AsyncStorage.getItem("userInfo");
+    setUser(raw ? JSON.parse(raw) : null);
   };
 
   useEffect(() => {
     getUserInfo();
   }, [user]);
 
-  return (
-    <>
-      {user?.status === "Pending" ? (
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-            animation: "slide_from_right",
-          }}
-        >
-          <Stack.Screen
-            name="OrganizationOnboard"
-            component={OrganizationOnboard}
-          />
-          <Stack.Screen
-            name="CommoditiesOnboard"
-            component={CommoditiesOnboard}
-          />
-        </Stack.Navigator>
-      ) : (
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-            animation: "slide_from_right",
-          }}
-        >
-          <Stack.Screen name="TabsScreen" component={TabsScreen} />
-          <Stack.Screen name="Home" component={Home} />
-          <Stack.Screen name="Explore" component={Explore} />
-          <Stack.Screen name="Orders" component={Orders} />
-          <Stack.Screen name="ProductDetails" component={ProductDetails} />
-        </Stack.Navigator>
-      )}
-    </>
-  );
+  // Pending status — show onboarding regardless of role
+  if (user?.status === "Pending") {
+    return <OnboardingStack />;
+  }
+
+  // Active — route by userType
+  const userType = user?.userType ?? user?.data?.userType;
+
+  if (userType === "Farmer" || userType === "Miner") {
+    return <FarmerSignedInStack />;
+  }
+
+  if (userType === "GemExcite") {
+    return <GemExciteSignedInStack />;
+  }
+
+  // Offtaker, Admin, GemAdmin, StoreKeeper, or unknown — default stack
+  return <DefaultSignedInStack />;
 };
 
+// ─── Auth Stack — root navigator ─────────────────────────────────────────────
 const AuthStack = () => {
   const { userInfo } = useSelector((state) => state.loginReducer);
   const [user, setUser] = useState(null);
@@ -103,13 +112,8 @@ const AuthStack = () => {
   SplashScreen?.preventAutoHideAsync();
 
   const getUserInfo = async () => {
-    const userInfo = await AsyncStorage.getItem("userInfo");
-    // console.log(userInfo);
-    if (userInfo) {
-      setUser(JSON.parse(userInfo));
-    } else {
-      setUser(null);
-    }
+    const raw = await AsyncStorage.getItem("userInfo");
+    setUser(raw ? JSON.parse(raw) : null);
     setTimeout(() => {
       SplashScreen?.hideAsync();
     }, 1000);
@@ -119,7 +123,7 @@ const AuthStack = () => {
     getUserInfo();
   }, [user, userInfo]);
 
-  return <>{user ? <SignedInStack /> : <SignedOutStack />}</>;
+  return user ? <SignedInStack /> : <SignedOutStack />;
 };
 
 export { SignedOutStack, SignedInStack, AuthStack };

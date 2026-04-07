@@ -11,6 +11,7 @@ import {
   Pressable,
   Image,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import {
   Heart,
   CheckCircle,
@@ -157,8 +158,8 @@ const Explore = () => {
   };
 
   return (
-    <View className="flex-1 bg-white px-2 pt-2">
-      <View className="flex-row items-center py-2 px-2 border-b border-gray-300 mb-3  m justify-between">
+    <SafeAreaView className="flex-1 bg-white px-2">
+      <View className="flex-row items-center py-2 px-2 border-b border-gray-300 mb-3 justify-between">
         <Image
           source={require("../assets/app-icon.png")}
           className="h-[34px] w-[42px]"
@@ -290,7 +291,7 @@ const Explore = () => {
           </View>
         </Pressable>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 

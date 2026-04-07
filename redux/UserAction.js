@@ -2,6 +2,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import url from "../screens/url";
+import { changeLanguage } from "../services/i18n";
 
 // ? get user profile
 export const GetUserProfile = () => async (dispatch) => {
@@ -17,6 +18,10 @@ export const GetUserProfile = () => async (dispatch) => {
       },
     });
     dispatch({ type: "GET_USER_SUCCESS", payload: data?.payload });
+    // Apply the user's saved language preference (no API call — already loaded)
+    if (data?.payload?.language) {
+      await changeLanguage(data.payload.language);
+    }
   } catch (error) {
     console.log(error);
     dispatch({

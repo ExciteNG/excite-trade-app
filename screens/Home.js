@@ -8,16 +8,17 @@ import {
   TextInput,
 } from "react-native";
 import React from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Bell, Search } from "lucide-react-native";
 import Categories from "../components/Categories";
 import TopCommodities from "../components/TopCommodities";
 
 const Home = ({ navigation }) => {
   return (
-    <View className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white">
       <StatusBar backgroundColor={"white"} barStyle="dark-content" />
       {/* header */}
-      <View className="flex-row items-center py-2 px-4 border-b border-gray-300 mt-2 justify-between">
+      <View className="flex-row items-center py-2 px-4 border-b border-gray-300 justify-between">
         <Image
           source={require("../assets/app-icon.png")}
           className="h-[34px] w-[42px]"
@@ -45,8 +46,7 @@ const Home = ({ navigation }) => {
       {/* commodities category */}
       <Categories />
       <TopCommodities navigation={navigation} />
-      {/* <TopCommodities /> */}
-    </View>
+    </SafeAreaView>
   );
 };
 

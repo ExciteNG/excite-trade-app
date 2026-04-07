@@ -30,25 +30,14 @@ export const { height: screenHeight, width: screenWidth } =
 
 const TabsScreen = () => {
   const Tab = createBottomTabNavigator();
-  const hasHomeIndicator = height >= 810; // Assuming iPhone X and later have a home indicator
-
   const androidTabBarStyle = {
-    height: 55,
-    paddingTop: 0,
-    shadowColor: "black",
-    borderColor: "whitesmoke",
-    // marginBottom: -5,
-  };
-
-  const androidTabBarStyleBrands = {
     height: 60,
-    paddingTop: 10,
+    paddingTop: 4,
     shadowColor: "black",
     borderColor: "whitesmoke",
   };
 
   const iosTabBarStyle = {
-    marginBottom: hasHomeIndicator ? -35 : 0, // Adjust marginBottom based on home indicator
     paddingTop: 4,
     shadowColor: "white",
     borderColor: "whitesmoke",
