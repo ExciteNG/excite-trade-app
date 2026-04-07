@@ -17,6 +17,7 @@ import VerifyEmail from "./screens/VerifyEmail";
 import { useSelector } from "react-redux";
 import OrganizationOnboard from "./screens/offtakers/OrganizationOnboard";
 import CommoditiesOnboard from "./screens/offtakers/CommoditiesOnboard";
+import Support from "./screens/offtakers/Support";
 
 const SignedOutStack = () => {
   //   NavigationBar.setBackgroundColorAsync("white");
@@ -62,7 +63,7 @@ const SignedInStack = () => {
 
   return (
     <>
-      {user?.status === "Pending" ? (
+      {/* {user?.status === "Pending" ? (
         <Stack.Navigator
           screenOptions={{
             headerShown: false,
@@ -78,20 +79,21 @@ const SignedInStack = () => {
             component={CommoditiesOnboard}
           />
         </Stack.Navigator>
-      ) : (
-        <Stack.Navigator
-          screenOptions={{
-            headerShown: false,
-            animation: "slide_from_right",
-          }}
-        >
-          <Stack.Screen name="TabsScreen" component={TabsScreen} />
-          <Stack.Screen name="Home" component={Home} />
-          <Stack.Screen name="Explore" component={Explore} />
-          <Stack.Screen name="Orders" component={Orders} />
-          <Stack.Screen name="ProductDetails" component={ProductDetails} />
-        </Stack.Navigator>
-      )}
+      ) : ( */}
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          animation: "slide_from_right",
+        }}
+      >
+        <Stack.Screen name="TabsScreen" component={TabsScreen} />
+        <Stack.Screen name="Home" component={Home} />
+        <Stack.Screen name="Explore" component={Explore} />
+        <Stack.Screen name="Orders" component={Orders} />
+        <Stack.Screen name="Support" component={Support} />
+        <Stack.Screen name="ProductDetails" component={ProductDetails} />
+      </Stack.Navigator>
+      {/* )} */}
     </>
   );
 };

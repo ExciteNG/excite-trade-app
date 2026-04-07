@@ -119,7 +119,7 @@ const Profile = ({ navigation }) => {
           Icon={HelpCircle}
           title="Help & Support"
           subtitle="Contact us, FAQs, and resources"
-          onPress={() => {}}
+          onPress={() => navigation?.navigate?.("Support")}
         />
         <View className="border-b border-gray-200" />
 
