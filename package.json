@@ -33,6 +33,9 @@
     "i18next": "^23.16.8",
     "react-i18next": "^15.4.1"
   },
+  "overrides": {
+    "react": "$react"
+  },
   "private": true,
   "devDependencies": {
     "@babel/core": "^7.27.3",
