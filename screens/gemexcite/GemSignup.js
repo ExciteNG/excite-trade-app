@@ -10,8 +10,8 @@ import {
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react-native";
 import axios from "axios";
-import { url } from "../url";
-import { toast } from "../components/Toast";
+import { url } from "../../url";
+import { toast } from "../../components/Toast";
 
 const GemSignup = ({ navigation }) => {
   const [email, setEmail] = useState("");

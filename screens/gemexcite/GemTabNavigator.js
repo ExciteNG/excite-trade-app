@@ -4,7 +4,7 @@ import { View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Home, Users, ClipboardList, UserCircle } from "lucide-react-native";
+import { Home, User, Inbox, UserCircle } from "lucide-react-native";
 
 import GemHome from "./GemHome";
 import GemManageCluster from "./GemManageCluster";
@@ -22,44 +22,52 @@ const Stack = createNativeStackNavigator();
 
 // Home — dashboard + quality control (launched from home quick action)
 const HomeStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
-    <Stack.Screen name="GemHome" component={GemHome} />
-    <Stack.Screen name="GemQualityControl" component={GemQualityControl} />
-    <Stack.Screen name="Notifications" component={NotificationsScreen} />
+  <Stack.Navigator
+    screenOptions={{ headerShown: false, animation: "slide_from_right" }}
+  >
+    <Stack.Screen name='GemHome' component={GemHome} />
+    <Stack.Screen name='GemQualityControl' component={GemQualityControl} />
+    <Stack.Screen name='Notifications' component={NotificationsScreen} />
   </Stack.Navigator>
 );
 
 // Cluster — farmer list + farmer detail
 const ClusterStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
-    <Stack.Screen name="Cluster" component={GemManageCluster} />
-    <Stack.Screen name="GemFarmerDetail" component={GemFarmerDetail} />
+  <Stack.Navigator
+    screenOptions={{ headerShown: false, animation: "slide_from_right" }}
+  >
+    <Stack.Screen name='Cluster' component={GemManageCluster} />
+    <Stack.Screen name='GemFarmerDetail' component={GemFarmerDetail} />
   </Stack.Navigator>
 );
 
 // Requests — new order assignment + assigned farmer tracking + quality check
 const RequestsStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
-    <Stack.Screen name="Requests" component={GemNewRequest} />
-    <Stack.Screen name="GemAssignedRequests" component={GemAssignedRequests} />
-    <Stack.Screen name="GemQualityControl" component={GemQualityControl} />
+  <Stack.Navigator
+    screenOptions={{ headerShown: false, animation: "slide_from_right" }}
+  >
+    <Stack.Screen name='Requests' component={GemNewRequest} />
+    <Stack.Screen name='GemAssignedRequests' component={GemAssignedRequests} />
+    <Stack.Screen name='GemQualityControl' component={GemQualityControl} />
   </Stack.Navigator>
 );
 
 // Profile — menu hub + storage, settings, quality control (all nested)
 const ProfileStack = () => (
-  <Stack.Navigator screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
-    <Stack.Screen name="GemProfileMenu" component={GemProfile} />
-    <Stack.Screen name="Depository" component={GemDepository} />
-    <Stack.Screen name="GemQualityControl" component={GemQualityControl} />
-    <Stack.Screen name="GemSettings" component={GemSettings} />
+  <Stack.Navigator
+    screenOptions={{ headerShown: false, animation: "slide_from_right" }}
+  >
+    <Stack.Screen name='GemProfileMenu' component={GemProfile} />
+    <Stack.Screen name='Depository' component={GemDepository} />
+    <Stack.Screen name='GemQualityControl' component={GemQualityControl} />
+    <Stack.Screen name='GemSettings' component={GemSettings} />
   </Stack.Navigator>
 );
 
 const TabIcon = ({ Icon, focused }) => {
   const color = focused ? "#A7CC48" : "#9CA3AF";
   return (
-    <View className="items-center justify-center">
+    <View className='items-center justify-center'>
       <Icon size={24} color={color} strokeWidth={focused ? 2.3 : 1.8} />
     </View>
   );
@@ -99,7 +107,7 @@ const GemTabNavigator = () => {
       }}
     >
       <Tab.Screen
-        name="HomeStack"
+        name='HomeStack'
         component={HomeStack}
         options={{
           tabBarIcon: ({ focused }) => (
@@ -108,25 +116,25 @@ const GemTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="ClusterStack"
+        name='ClusterStack'
         component={ClusterStack}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon Icon={Users} focused={focused} />
+            <TabIcon Icon={User} focused={focused} />
           ),
         }}
       />
       <Tab.Screen
-        name="RequestsStack"
+        name='RequestsStack'
         component={RequestsStack}
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon Icon={ClipboardList} focused={focused} />
+            <TabIcon Icon={Inbox} focused={focused} />
           ),
         }}
       />
       <Tab.Screen
-        name="ProfileStack"
+        name='ProfileStack'
         component={ProfileStack}
         options={{
           tabBarIcon: ({ focused }) => (

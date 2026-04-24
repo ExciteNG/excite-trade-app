@@ -16,10 +16,11 @@ import { useFocusEffect } from "@react-navigation/native";
 import {
   Package,
   Calendar,
-  Users,
+  User,
   Search,
   CheckCircle,
   X,
+  Inbox,
   Info,
   Hash,
   Truck,
@@ -41,7 +42,10 @@ const GemNewRequest = ({ navigation }) => {
   const [clusterFarmers, setClusterFarmers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [assignModal, setAssignModal] = useState({ visible: false, order: null });
+  const [assignModal, setAssignModal] = useState({
+    visible: false,
+    order: null,
+  });
   const [selectedFarmers, setSelectedFarmers] = useState([]);
   const [farmerQuantities, setFarmerQuantities] = useState({});
   const [farmerSearch, setFarmerSearch] = useState("");
@@ -55,41 +59,61 @@ const GemNewRequest = ({ navigation }) => {
         api.get("/gem-excite/requests?status=new-request"),
         api.get("/gem-excite/cluster/users"),
       ]);
-      const rawOrders = requestsRes.data.data ?? [];
-      const mapped = rawOrders.map((r) => ({
-        id: r._id,
-        commodity: r.sourceId?.commodityName ?? r.order?.commodityName ?? "",
-        quantity: r.order?.quantity ?? 0,
-        unit: "tonnes",
-        orderType: r.order?.orderType ?? "pre-order",
-        status: r.order?.status ?? r.status ?? "new-request",
-        trackingId: r.order?.trackingId ?? "",
-        purchaseDate: r.createdAt
-          ? new Date(r.createdAt).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })
-          : "",
-        edd: r.order?.estimatedDeliveryDate
-          ? new Date(r.order.estimatedDeliveryDate).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })
-          : "",
-      }));
-      setOrders(mapped);
 
-      const rawFarmers = farmersRes.data.data ?? [];
-      const mappedFarmers = rawFarmers.map((f) => ({
-        id: f._id,
-        name: `${f.name?.firstName ?? ""} ${f.name?.lastName ?? ""}`.trim(),
-        capacity: f.profile?.commodityProductionCapacity ?? 0,
-        remaining: f.profile?.commodityProductionCapacity ?? 0,
-        commodity: f.profile?.commodityName ?? "",
-      }));
-      setClusterFarmers(mappedFarmers);
+      // Handle requests
+      const requestsData = requestsRes.data.data ?? {};
+      if (!requestsData.isAssignedToCluster) {
+        setOrders([]);
+        setError(
+          requestsData.message ||
+            "You have not been assigned to a cluster yet.",
+        );
+      } else {
+        const rawOrders = requestsData.requests ?? [];
+        const mapped = rawOrders.map((r) => ({
+          id: r._id,
+          commodity: r.sourceId?.commodityName ?? r.order?.commodityName ?? "",
+          quantity: r.order?.quantity ?? 0,
+          unit: "tonnes",
+          orderType: r.order?.orderType ?? "pre-order",
+          status: r.order?.status ?? r.status ?? "new-request",
+          trackingId: r.order?.trackingId ?? "",
+          purchaseDate: r.createdAt
+            ? new Date(r.createdAt).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })
+            : "",
+          edd: r.order?.estimatedDeliveryDate
+            ? new Date(r.order.estimatedDeliveryDate).toLocaleDateString(
+                "en-GB",
+                {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                },
+              )
+            : "",
+        }));
+        setOrders(mapped);
+      }
+
+      // Handle farmers
+      const farmersData = farmersRes.data.data ?? {};
+      if (!farmersData.isAssignedToCluster) {
+        setClusterFarmers([]);
+      } else {
+        const rawFarmers = farmersData.users ?? [];
+        const mappedFarmers = rawFarmers.map((f) => ({
+          id: f._id,
+          name: `${f.name?.firstName ?? ""} ${f.name?.lastName ?? ""}`.trim(),
+          capacity: f.profile?.commodityProductionCapacity ?? 0,
+          remaining: f.profile?.commodityProductionCapacity ?? 0,
+          commodity: f.profile?.commodityName ?? "",
+        }));
+        setClusterFarmers(mappedFarmers);
+      }
     } catch (err) {
       setError("Failed to load requests. Tap to retry.");
     } finally {
@@ -97,7 +121,11 @@ const GemNewRequest = ({ navigation }) => {
     }
   }, []);
 
-  useFocusEffect(useCallback(() => { fetchData(); }, [fetchData]));
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData]),
+  );
 
   const openAssign = (order) => {
     setAssignModal({ visible: true, order });
@@ -109,7 +137,11 @@ const GemNewRequest = ({ navigation }) => {
   const toggleFarmer = (farmerId) => {
     setSelectedFarmers((prev) => {
       if (prev.includes(farmerId)) {
-        setFarmerQuantities((q) => { const next = { ...q }; delete next[farmerId]; return next; });
+        setFarmerQuantities((q) => {
+          const next = { ...q };
+          delete next[farmerId];
+          return next;
+        });
         return prev.filter((id) => id !== farmerId);
       }
       return [...prev, farmerId];
@@ -129,7 +161,9 @@ const GemNewRequest = ({ navigation }) => {
     assignModal.order &&
     selectedFarmers.length > 0 &&
     totalAssigned >= assignModal.order.quantity &&
-    selectedFarmers.every((id) => parseInt(farmerQuantities[id] ?? "0", 10) > 0);
+    selectedFarmers.every(
+      (id) => parseInt(farmerQuantities[id] ?? "0", 10) > 0,
+    );
 
   const confirmAssign = async () => {
     if (!isSufficient) return;
@@ -141,13 +175,13 @@ const GemNewRequest = ({ navigation }) => {
       }));
       await api.post(
         `/gem-excite/requests/${assignModal.order.id}/assign-users`,
-        { users }
+        { users },
       );
       setOrders((prev) => prev.filter((o) => o.id !== assignModal.order.id));
       setAssignModal({ visible: false, order: null });
     } catch (err) {
       alert(
-        err?.response?.data?.message ?? "Assignment failed. Please try again."
+        err?.response?.data?.message ?? "Assignment failed. Please try again.",
       );
     } finally {
       setAssigning(false);
@@ -157,7 +191,7 @@ const GemNewRequest = ({ navigation }) => {
   const filteredFarmers = clusterFarmers.filter(
     (f) =>
       f.name.toLowerCase().includes(farmerSearch.toLowerCase()) ||
-      f.commodity.toLowerCase().includes(farmerSearch.toLowerCase())
+      f.commodity.toLowerCase().includes(farmerSearch.toLowerCase()),
   );
 
   const renderOrder = ({ item }) => (
@@ -209,7 +243,9 @@ const GemNewRequest = ({ navigation }) => {
           {item.trackingId ? (
             <View className='flex-row items-center gap-2'>
               <Hash size={11} color='#9CA3AF' />
-              <Text className='text-[11px] text-gray-400 w-24'>Tracking ID</Text>
+              <Text className='text-[11px] text-gray-400 w-24'>
+                Tracking ID
+              </Text>
               <Text className='text-[11px] font-[600] text-gray-700 flex-1'>
                 {item.trackingId}
               </Text>
@@ -224,7 +260,9 @@ const GemNewRequest = ({ navigation }) => {
           </View>
           <View className='flex-row items-center gap-2'>
             <Truck size={11} color='#9CA3AF' />
-            <Text className='text-[11px] text-gray-400 w-24'>Est. Delivery</Text>
+            <Text className='text-[11px] text-gray-400 w-24'>
+              Est. Delivery
+            </Text>
             <Text className='text-[11px] font-[600] text-gray-700 flex-1'>
               {item.edd || "—"}
             </Text>
@@ -236,7 +274,7 @@ const GemNewRequest = ({ navigation }) => {
           activeOpacity={0.85}
           onPress={() => openAssign(item)}
         >
-          <Users size={15} color='#fff' />
+          <User size={15} color='#fff' />
           <Text className='text-[13px] font-[700] text-white'>
             Assign to Farmer
           </Text>
@@ -255,7 +293,8 @@ const GemNewRequest = ({ navigation }) => {
               New Requests
             </Text>
             <Text className='text-[13px] text-gray-400 mt-0.5'>
-              {orders.length} pending {orders.length === 1 ? "order" : "orders"} to assign
+              {orders.length} pending {orders.length === 1 ? "order" : "orders"}{" "}
+              to assign
             </Text>
           </View>
           <TouchableOpacity
@@ -277,13 +316,36 @@ const GemNewRequest = ({ navigation }) => {
           style={{ marginTop: 40 }}
         />
       ) : error ? (
-        <TouchableOpacity
-          style={{ alignItems: "center", marginTop: 40 }}
-          onPress={fetchData}
-          activeOpacity={0.7}
-        >
-          <Text className='text-[13px] text-red-400'>{error}</Text>
-        </TouchableOpacity>
+        error.includes("not been assigned to a cluster") ? (
+          <View className='flex-1 items-center justify-center px-6'>
+            <View className='w-20 h-20 rounded-full bg-gray-100 items-center justify-center mb-6'>
+              <Inbox size={32} color='#9CA3AF' />
+            </View>
+            <Text className='text-[18px] font-[700] text-gray-800 text-center mb-2'>
+              Cluster Assignment Pending
+            </Text>
+            <Text className='text-[14px] text-gray-500 text-center leading-5 mb-6'>
+              {error}
+            </Text>
+            <TouchableOpacity
+              className='bg-[#A7CC48] rounded-xl px-6 py-3'
+              activeOpacity={0.8}
+              onPress={fetchData}
+            >
+              <Text className='text-[14px] font-[600] text-white'>
+                Check Status
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={{ alignItems: "center", marginTop: 40 }}
+            onPress={fetchData}
+            activeOpacity={0.7}
+          >
+            <Text className='text-[13px] text-red-400'>{error}</Text>
+          </TouchableOpacity>
+        )
       ) : orders.length === 0 ? (
         <View className='flex-1 items-center justify-center'>
           <View className='w-20 h-20 rounded-full bg-[#F0FDF4] items-center justify-center mb-4'>
@@ -344,13 +406,20 @@ const GemNewRequest = ({ navigation }) => {
                 borderColor: isSufficient ? "#BBF7D0" : "#FED7AA",
               }}
             >
-              <Info size={14} color={isSufficient ? "#16A34A" : "#F97316"} style={{ marginTop: 1 }} />
+              <Info
+                size={14}
+                color={isSufficient ? "#16A34A" : "#F97316"}
+                style={{ marginTop: 1 }}
+              />
               <Text
                 className='text-[12px] flex-1 leading-4'
                 style={{ color: isSufficient ? "#15803D" : "#C2410C" }}
               >
-                Assigned: {totalAssigned}t / Required: {assignModal.order?.quantity}t
-                {isSufficient ? "  ✓ Sufficient" : `  — need ${(assignModal.order?.quantity ?? 0) - totalAssigned}t more`}
+                Assigned: {totalAssigned}t / Required:{" "}
+                {assignModal.order?.quantity}t
+                {isSufficient
+                  ? "  ✓ Sufficient"
+                  : `  — need ${(assignModal.order?.quantity ?? 0) - totalAssigned}t more`}
               </Text>
             </View>
 
@@ -406,7 +475,9 @@ const GemNewRequest = ({ navigation }) => {
                         className='w-6 h-6 rounded-full border-2 items-center justify-center'
                         style={{
                           borderColor: isSelected ? "#A7CC48" : "#D1D5DB",
-                          backgroundColor: isSelected ? "#A7CC48" : "transparent",
+                          backgroundColor: isSelected
+                            ? "#A7CC48"
+                            : "transparent",
                         }}
                       >
                         {isSelected && <CheckCircle size={14} color='#fff' />}
@@ -414,7 +485,8 @@ const GemNewRequest = ({ navigation }) => {
                     </TouchableOpacity>
 
                     {isSelected && (
-                      <View className='flex-row items-center mt-2 ml-13 gap-2'
+                      <View
+                        className='flex-row items-center mt-2 ml-13 gap-2'
                         style={{ marginLeft: 52 }}
                       >
                         <Text className='text-[11px] text-gray-500'>

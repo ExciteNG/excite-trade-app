@@ -110,7 +110,9 @@ const AssignmentCard = ({ item, index, onReview }) => {
         <View className='flex-row items-center mb-4'>
           <View
             className='w-12 h-12 rounded-full items-center justify-center mr-3'
-            style={{ backgroundColor: AVATAR_COLORS[index % AVATAR_COLORS.length] }}
+            style={{
+              backgroundColor: AVATAR_COLORS[index % AVATAR_COLORS.length],
+            }}
           >
             <Text className='text-[13px] font-[700] text-gray-700'>
               {getInitials(item.farmerName)}
@@ -175,18 +177,30 @@ const GemAssignedRequests = ({ navigation }) => {
     setError(null);
     try {
       const res = await api.get("/gem-excite/assigned-requests");
-      const raw = res.data.data ?? [];
-      const mapped = raw.map((a) => ({
-        id: a._id,
-        farmerName: `${a.user?.name?.firstName ?? ""} ${a.user?.name?.lastName ?? ""}`.trim(),
-        commodity: a.commodityName ?? a.request?.sourceId?.commodityName ?? "",
-        quantity: a.quantity ?? 0,
-        status: a.status,
-        uploadedCommodityId: a.uploadedCommodity?._id ?? null,
-        uploadedQuantity: a.uploadedCommodity?.quantity ?? null,
-        uploadedPrice: a.uploadedCommodity?.pricePerTonne ?? null,
-      }));
-      setAssignments(mapped);
+      const data = res.data.data ?? {};
+
+      // Check if user is assigned to cluster
+      if (!data.isAssignedToCluster) {
+        setAssignments([]);
+        setError(
+          data.message || "You have not been assigned to a cluster yet.",
+        );
+      } else {
+        const raw = data.assignments ?? [];
+        const mapped = raw.map((a) => ({
+          id: a._id,
+          farmerName:
+            `${a.user?.name?.firstName ?? ""} ${a.user?.name?.lastName ?? ""}`.trim(),
+          commodity:
+            a.commodityName ?? a.request?.sourceId?.commodityName ?? "",
+          quantity: a.quantity ?? 0,
+          status: a.status,
+          uploadedCommodityId: a.uploadedCommodity?._id ?? null,
+          uploadedQuantity: a.uploadedCommodity?.quantity ?? null,
+          uploadedPrice: a.uploadedCommodity?.pricePerTonne ?? null,
+        }));
+        setAssignments(mapped);
+      }
     } catch (err) {
       setError("Failed to load assignments. Tap to retry.");
     } finally {
@@ -194,13 +208,19 @@ const GemAssignedRequests = ({ navigation }) => {
     }
   }, []);
 
-  useFocusEffect(useCallback(() => { fetchAssignments(); }, [fetchAssignments]));
+  useFocusEffect(
+    useCallback(() => {
+      fetchAssignments();
+    }, [fetchAssignments]),
+  );
 
   const handleReview = (uploadedCommodityId) => {
     navigation.navigate("GemQualityControl", { uploadedCommodityId });
   };
 
-  const uploadedCount = assignments.filter((a) => a.status === "uploaded").length;
+  const uploadedCount = assignments.filter(
+    (a) => a.status === "uploaded",
+  ).length;
 
   return (
     <SafeAreaView edges={["top"]} className='flex-1 bg-gray-50'>
@@ -221,13 +241,36 @@ const GemAssignedRequests = ({ navigation }) => {
           style={{ marginTop: 40 }}
         />
       ) : error ? (
-        <TouchableOpacity
-          style={{ alignItems: "center", marginTop: 40 }}
-          onPress={fetchAssignments}
-          activeOpacity={0.7}
-        >
-          <Text className='text-[13px] text-red-400'>{error}</Text>
-        </TouchableOpacity>
+        error.includes("not been assigned to a cluster") ? (
+          <View className='flex-1 items-center justify-center px-6'>
+            <View className='w-20 h-20 rounded-full bg-gray-100 items-center justify-center mb-6'>
+              <User size={32} color='#9CA3AF' />
+            </View>
+            <Text className='text-[18px] font-[700] text-gray-800 text-center mb-2'>
+              Cluster Assignment Pending
+            </Text>
+            <Text className='text-[14px] text-gray-500 text-center leading-5 mb-6'>
+              {error}
+            </Text>
+            <TouchableOpacity
+              className='bg-[#A7CC48] rounded-xl px-6 py-3'
+              activeOpacity={0.8}
+              onPress={fetchAssignments}
+            >
+              <Text className='text-[14px] font-[600] text-white'>
+                Check Status
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={{ alignItems: "center", marginTop: 40 }}
+            onPress={fetchAssignments}
+            activeOpacity={0.7}
+          >
+            <Text className='text-[13px] text-red-400'>{error}</Text>
+          </TouchableOpacity>
+        )
       ) : assignments.length === 0 ? (
         <View className='flex-1 items-center justify-center'>
           <View className='w-20 h-20 rounded-full bg-gray-100 items-center justify-center mb-4'>
@@ -245,11 +288,7 @@ const GemAssignedRequests = ({ navigation }) => {
           data={assignments}
           keyExtractor={(item) => item.id}
           renderItem={({ item, index }) => (
-            <AssignmentCard
-              item={item}
-              index={index}
-              onReview={handleReview}
-            />
+            <AssignmentCard item={item} index={index} onReview={handleReview} />
           )}
           contentContainerStyle={{ paddingTop: 16, paddingBottom: 32 }}
           showsVerticalScrollIndicator={false}

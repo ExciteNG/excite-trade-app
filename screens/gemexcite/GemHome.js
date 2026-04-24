@@ -16,8 +16,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Bell,
   Search,
-  Users,
-  ClipboardList,
+  User,
+  Inbox,
   Warehouse,
   ChevronRight,
   Package,
@@ -75,7 +75,7 @@ const GemHome = ({ navigation }) => {
         setClusterName(
           userInfo?.profile?.isAssignedCluster?.clusterName ??
             userInfo?.name?.firstName ??
-            "GemExcite"
+            "GemExcite",
         );
       }
       const [overviewRes, countRes] = await Promise.all([
@@ -84,30 +84,45 @@ const GemHome = ({ navigation }) => {
       ]);
       const data = overviewRes.data.data;
       setUnreadCount(countRes.data.data?.count ?? 0);
-      setOverview(data);
-      const mapped = (data.request ?? []).map((r) => ({
-        id: r._id,
-        commodity:
-          r.sourceId?.commodityName ?? r.order?.commodityName ?? "",
-        trackingId: r.order?.trackingId ?? null,
-        quantity: r.order?.quantity ? `${r.order.quantity} tonnes` : "",
-        orderDate: r.createdAt
-          ? new Date(r.createdAt).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })
-          : "",
-        deliveryDate: r.order?.estimatedDeliveryDate
-          ? new Date(r.order.estimatedDeliveryDate).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            })
-          : "",
-        status: r.status ?? "new-request",
-      }));
-      setRequests(mapped);
+
+      // Check if user is assigned to cluster
+      if (!data.isAssignedToCluster) {
+        setOverview({
+          isAssignedToCluster: false,
+          message: data.message,
+          newRequest: 0,
+          inCultivationRequest: 0,
+          harvestedRequest: 0,
+        });
+        setRequests([]);
+      } else {
+        setOverview(data);
+        const mapped = (data.request ?? []).map((r) => ({
+          id: r._id,
+          commodity: r.sourceId?.commodityName ?? r.order?.commodityName ?? "",
+          trackingId: r.order?.trackingId ?? null,
+          quantity: r.order?.quantity ? `${r.order.quantity} tonnes` : "",
+          orderDate: r.createdAt
+            ? new Date(r.createdAt).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })
+            : "",
+          deliveryDate: r.order?.estimatedDeliveryDate
+            ? new Date(r.order.estimatedDeliveryDate).toLocaleDateString(
+                "en-GB",
+                {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                },
+              )
+            : "",
+          status: r.status ?? "new-request",
+        }));
+        setRequests(mapped);
+      }
     } catch (err) {
       setError("Failed to load data. Tap to retry.");
     } finally {
@@ -115,10 +130,14 @@ const GemHome = ({ navigation }) => {
     }
   }, []);
 
-  useFocusEffect(useCallback(() => { fetchData(); }, [fetchData]));
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData]),
+  );
 
   const filtered = requests.filter((r) =>
-    (r.commodity ?? "").toLowerCase().includes(search.toLowerCase())
+    (r.commodity ?? "").toLowerCase().includes(search.toLowerCase()),
   );
 
   const renderRequest = ({ item }) => {
@@ -162,9 +181,7 @@ const GemHome = ({ navigation }) => {
         <View className='flex-row gap-4'>
           <View className='flex-row items-center gap-1'>
             <Calendar size={11} color='#9CA3AF' />
-            <Text className='text-[11px] text-gray-400'>
-              {item.orderDate}
-            </Text>
+            <Text className='text-[11px] text-gray-400'>{item.orderDate}</Text>
           </View>
           {item.deliveryDate ? (
             <View className='flex-row items-center gap-1'>
@@ -212,126 +229,155 @@ const GemHome = ({ navigation }) => {
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Stat Cards */}
-        <View className='px-4 pt-4 pb-3'>
-          <Text className='text-[11px] font-[700] text-gray-400 uppercase tracking-widest mb-3'>
-            Overview
-          </Text>
-          <View className='flex-row gap-2'>
-            <StatCard
-              label='New Requests'
-              value={String(overview?.newRequest ?? 0)}
-              bg='#EFF6FF'
-              iconColor='#3B82F6'
-              Icon={Users}
-              onPress={() => navigation.navigate("Requests")}
-            />
-            <StatCard
-              label='In Cultivation'
-              value={String(overview?.inCultivationRequest ?? 0)}
-              bg='#FFF7ED'
-              iconColor='#F97316'
-              Icon={ClipboardList}
-              onPress={() => navigation.navigate("Requests")}
-            />
-            <StatCard
-              label='Harvested'
-              value={String(overview?.harvestedRequest ?? 0)}
-              bg='#F0FDF4'
-              iconColor='#22C55E'
-              Icon={Warehouse}
-              onPress={() =>
-                navigation.navigate("ProfileStack", { screen: "Depository" })
-              }
-            />
-          </View>
-        </View>
-
-        {/* Quick Actions */}
-        <View className='flex-row px-4 gap-3 mb-4'>
-          <TouchableOpacity
-            className='flex-1 bg-[#A7CC48] rounded-2xl py-4 items-center'
-            activeOpacity={0.85}
-            onPress={() => navigation.navigate("Requests")}
-          >
-            <ClipboardList size={20} color='#fff' />
-            <Text className='text-[12px] font-[600] text-white mt-1'>
-              New Requests
+        {/* Check if user is assigned to cluster */}
+        {overview?.isAssignedToCluster === false ? (
+          <View className='flex-1 items-center justify-center px-6 py-12'>
+            <View className='w-20 h-20 rounded-full bg-gray-100 items-center justify-center mb-6'>
+              <User size={32} color='#9CA3AF' />
+            </View>
+            <Text className='text-[18px] font-[700] text-gray-800 text-center mb-2'>
+              Cluster Assignment Pending
             </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            className='flex-1 bg-gray-800 rounded-2xl py-4 items-center'
-            activeOpacity={0.85}
-            onPress={() => navigation.navigate("GemQualityControl")}
-          >
-            <Package size={20} color='#A7CC48' />
-            <Text className='text-[12px] font-[600] text-white mt-1'>
-              Quality Control
+            <Text className='text-[14px] text-gray-500 text-center leading-5'>
+              {overview?.message ||
+                "You have not been assigned to a cluster yet. Please wait for admin approval."}
             </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Request History */}
-        <View className='mb-8'>
-          <View className='px-4 mb-3'>
-            <View className='flex-row items-center justify-between mb-3'>
-              <Text className='text-[15px] font-[700] text-gray-800'>
-                Request History
+            <TouchableOpacity
+              className='mt-6 bg-[#A7CC48] rounded-xl px-6 py-3'
+              activeOpacity={0.8}
+              onPress={fetchData}
+            >
+              <Text className='text-[14px] font-[600] text-white'>
+                Check Status
               </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <>
+            {/* Stat Cards */}
+            <View className='px-4 pt-4 pb-3'>
+              <Text className='text-[11px] font-[700] text-gray-400 uppercase tracking-widest mb-3'>
+                Overview
+              </Text>
+              <View className='flex-row gap-2'>
+                <StatCard
+                  label='New Requests'
+                  value={String(overview?.newRequest ?? 0)}
+                  bg='#EFF6FF'
+                  iconColor='#3B82F6'
+                  Icon={User}
+                  onPress={() => navigation.navigate("Requests")}
+                />
+                <StatCard
+                  label='In Cultivation'
+                  value={String(overview?.inCultivationRequest ?? 0)}
+                  bg='#FFF7ED'
+                  iconColor='#F97316'
+                  Icon={Inbox}
+                  onPress={() => navigation.navigate("Requests")}
+                />
+                <StatCard
+                  label='Harvested'
+                  value={String(overview?.harvestedRequest ?? 0)}
+                  bg='#F0FDF4'
+                  iconColor='#22C55E'
+                  Icon={Warehouse}
+                  onPress={() =>
+                    navigation.navigate("ProfileStack", {
+                      screen: "Depository",
+                    })
+                  }
+                />
+              </View>
+            </View>
+
+            {/* Quick Actions */}
+            <View className='flex-row px-4 gap-3 mb-4'>
               <TouchableOpacity
-                className='flex-row items-center'
-                activeOpacity={0.7}
+                className='flex-1 bg-[#A7CC48] rounded-2xl py-4 items-center'
+                activeOpacity={0.85}
                 onPress={() => navigation.navigate("Requests")}
               >
-                <Text className='text-[12px] font-[600] text-[#A7CC48]'>
-                  See all
+                <Inbox size={20} color='#fff' />
+                <Text className='text-[12px] font-[600] text-white mt-1'>
+                  New Requests
                 </Text>
-                <ChevronRight size={14} color='#A7CC48' />
+              </TouchableOpacity>
+              <TouchableOpacity
+                className='flex-1 bg-gray-800 rounded-2xl py-4 items-center'
+                activeOpacity={0.85}
+                onPress={() => navigation.navigate("GemQualityControl")}
+              >
+                <Package size={20} color='#A7CC48' />
+                <Text className='text-[12px] font-[600] text-white mt-1'>
+                  Quality Control
+                </Text>
               </TouchableOpacity>
             </View>
-            {/* Search */}
-            <View className='flex-row items-center bg-white border border-gray-200 rounded-xl px-3 h-[42px]'>
-              <Search size={14} color='#9CA3AF' />
-              <TextInput
-                className='flex-1 ml-2 text-[13px] text-gray-700'
-                placeholder='Search commodity...'
-                placeholderTextColor='#9CA3AF'
-                value={search}
-                onChangeText={setSearch}
-              />
-            </View>
-          </View>
 
-          {loading ? (
-            <ActivityIndicator
-              size='small'
-              color='#A7CC48'
-              style={{ marginTop: 20 }}
-            />
-          ) : error ? (
-            <TouchableOpacity
-              style={{ alignItems: "center", marginTop: 20 }}
-              onPress={fetchData}
-              activeOpacity={0.7}
-            >
-              <Text className='text-[13px] text-red-400'>{error}</Text>
-            </TouchableOpacity>
-          ) : (
-            <FlatList
-              data={filtered}
-              keyExtractor={(item) => item.id}
-              renderItem={renderRequest}
-              scrollEnabled={false}
-              ListEmptyComponent={
-                <View className='items-center py-8'>
-                  <Text className='text-[13px] text-gray-400'>
-                    No results found
+            {/* Request History */}
+            <View className='mb-8'>
+              <View className='px-4 mb-3'>
+                <View className='flex-row items-center justify-between mb-3'>
+                  <Text className='text-[15px] font-[700] text-gray-800'>
+                    Request History
                   </Text>
+                  <TouchableOpacity
+                    className='flex-row items-center'
+                    activeOpacity={0.7}
+                    onPress={() => navigation.navigate("Requests")}
+                  >
+                    <Text className='text-[12px] font-[600] text-[#A7CC48]'>
+                      See all
+                    </Text>
+                    <ChevronRight size={14} color='#A7CC48' />
+                  </TouchableOpacity>
                 </View>
-              }
-            />
-          )}
-        </View>
+                {/* Search */}
+                <View className='flex-row items-center bg-white border border-gray-200 rounded-xl px-3 h-[42px]'>
+                  <Search size={14} color='#9CA3AF' />
+                  <TextInput
+                    className='flex-1 ml-2 text-[13px] text-gray-700'
+                    placeholder='Search commodity...'
+                    placeholderTextColor='#9CA3AF'
+                    value={search}
+                    onChangeText={setSearch}
+                  />
+                </View>
+              </View>
+
+              {loading ? (
+                <ActivityIndicator
+                  size='small'
+                  color='#A7CC48'
+                  style={{ marginTop: 20 }}
+                />
+              ) : error ? (
+                <TouchableOpacity
+                  style={{ alignItems: "center", marginTop: 20 }}
+                  onPress={fetchData}
+                  activeOpacity={0.7}
+                >
+                  <Text className='text-[13px] text-red-400'>{error}</Text>
+                </TouchableOpacity>
+              ) : (
+                <FlatList
+                  data={filtered}
+                  keyExtractor={(item) => item.id}
+                  renderItem={renderRequest}
+                  scrollEnabled={false}
+                  ListEmptyComponent={
+                    <View className='items-center py-8'>
+                      <Text className='text-[13px] text-gray-400'>
+                        No results found
+                      </Text>
+                    </View>
+                  }
+                />
+              )}
+            </View>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

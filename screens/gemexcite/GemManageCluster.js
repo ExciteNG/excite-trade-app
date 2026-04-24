@@ -64,7 +64,9 @@ const FarmerRow = ({ item, onPress, index }) => (
     {/* Info */}
     <View className='flex-1'>
       <View className='flex-row items-center gap-2'>
-        <Text className='text-[14px] font-[700] text-gray-800'>{item.name}</Text>
+        <Text className='text-[14px] font-[700] text-gray-800'>
+          {item.name}
+        </Text>
         <View
           className='px-2 py-0.5 rounded-full'
           style={{
@@ -115,18 +117,28 @@ const GemManageCluster = ({ navigation }) => {
     setError(null);
     try {
       const response = await api.get("/gem-excite/cluster/users");
-      const raw = response.data.data ?? [];
-      const mapped = raw.map((f) => ({
-        id: f._id,
-        name: `${f.name?.firstName ?? ""} ${f.name?.lastName ?? ""}`.trim(),
-        commodity: f.profile?.commodityName ?? "",
-        capacity: f.profile?.commodityProductionCapacity
-          ? `${f.profile.commodityProductionCapacity} tonnes`
-          : "",
-        location: f.profile?.farmLocation ?? "",
-        status: f.status ?? "Pending",
-      }));
-      setFarmers(mapped);
+      const data = response.data.data ?? {};
+
+      // Check if user is assigned to cluster
+      if (!data.isAssignedToCluster) {
+        setFarmers([]);
+        setError(
+          data.message || "You have not been assigned to a cluster yet.",
+        );
+      } else {
+        const raw = data.users ?? [];
+        const mapped = raw.map((f) => ({
+          id: f._id,
+          name: `${f.name?.firstName ?? ""} ${f.name?.lastName ?? ""}`.trim(),
+          commodity: f.profile?.commodityName ?? "",
+          capacity: f.profile?.commodityProductionCapacity
+            ? `${f.profile.commodityProductionCapacity} tonnes`
+            : "",
+          location: f.profile?.farmLocation ?? "",
+          status: f.status ?? "Pending",
+        }));
+        setFarmers(mapped);
+      }
     } catch (err) {
       setError("Failed to load cluster. Tap to retry.");
     } finally {
@@ -134,13 +146,17 @@ const GemManageCluster = ({ navigation }) => {
     }
   }, []);
 
-  useFocusEffect(useCallback(() => { fetchFarmers(); }, [fetchFarmers]));
+  useFocusEffect(
+    useCallback(() => {
+      fetchFarmers();
+    }, [fetchFarmers]),
+  );
 
   const filtered = farmers.filter(
     (f) =>
       f.name.toLowerCase().includes(search.toLowerCase()) ||
       f.commodity.toLowerCase().includes(search.toLowerCase()) ||
-      f.location.toLowerCase().includes(search.toLowerCase())
+      f.location.toLowerCase().includes(search.toLowerCase()),
   );
 
   const activeCount = farmers.filter((f) => f.status === "Active").length;
@@ -201,13 +217,36 @@ const GemManageCluster = ({ navigation }) => {
           style={{ marginTop: 40 }}
         />
       ) : error ? (
-        <TouchableOpacity
-          style={{ alignItems: "center", marginTop: 40 }}
-          onPress={fetchFarmers}
-          activeOpacity={0.7}
-        >
-          <Text className='text-[13px] text-red-400'>{error}</Text>
-        </TouchableOpacity>
+        error.includes("not been assigned to a cluster") ? (
+          <View className='flex-1 items-center justify-center px-6'>
+            <View className='w-20 h-20 rounded-full bg-gray-100 items-center justify-center mb-6'>
+              <User size={32} color='#9CA3AF' />
+            </View>
+            <Text className='text-[18px] font-[700] text-gray-800 text-center mb-2'>
+              Cluster Assignment Pending
+            </Text>
+            <Text className='text-[14px] text-gray-500 text-center leading-5 mb-6'>
+              {error}
+            </Text>
+            <TouchableOpacity
+              className='bg-[#A7CC48] rounded-xl px-6 py-3'
+              activeOpacity={0.8}
+              onPress={fetchFarmers}
+            >
+              <Text className='text-[14px] font-[600] text-white'>
+                Check Status
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={{ alignItems: "center", marginTop: 40 }}
+            onPress={fetchFarmers}
+            activeOpacity={0.7}
+          >
+            <Text className='text-[13px] text-red-400'>{error}</Text>
+          </TouchableOpacity>
+        )
       ) : (
         <FlatList
           data={filtered}

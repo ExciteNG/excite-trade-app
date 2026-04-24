@@ -33,8 +33,20 @@ const GemDepository = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get("/gem-excite/cluster/uploaded-commodities");
-      setCommodities(response.data.data ?? []);
+      const response = await api.get(
+        "/gem-excite/cluster/uploaded-commodities",
+      );
+      const data = response.data.data ?? {};
+
+      // Check if user is assigned to cluster
+      if (!data.isAssignedToCluster) {
+        setCommodities([]);
+        setError(
+          data.message || "You have not been assigned to a cluster yet.",
+        );
+      } else {
+        setCommodities(data.commodities ?? []);
+      }
     } catch (err) {
       setError("Failed to load depository. Tap to retry.");
     } finally {
@@ -42,17 +54,24 @@ const GemDepository = () => {
     }
   }, []);
 
-  useFocusEffect(useCallback(() => { fetchData(); }, [fetchData]));
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, [fetchData]),
+  );
 
   // Cleared = passed quality check; storage = all others
   const clearedOrders = commodities.filter(
-    (c) => c.status === "passed-quality-check"
+    (c) => c.status === "passed-quality-check",
   );
   const storageEntries = commodities.filter(
-    (c) => c.status !== "passed-quality-check"
+    (c) => c.status !== "passed-quality-check",
   );
 
-  const totalQuantity = commodities.reduce((sum, c) => sum + (c.quantity ?? 0), 0);
+  const totalQuantity = commodities.reduce(
+    (sum, c) => sum + (c.quantity ?? 0),
+    0,
+  );
 
   const renderClearedRow = ({ item }) => (
     <View className='flex-row items-center py-3 border-b border-gray-50'>
@@ -135,18 +154,48 @@ const GemDepository = () => {
 
   if (loading) {
     return (
-      <SafeAreaView edges={["top"]} className='flex-1 bg-gray-50 items-center justify-center'>
+      <SafeAreaView
+        edges={["top"]}
+        className='flex-1 bg-gray-50 items-center justify-center'
+      >
         <ActivityIndicator size='small' color='#A7CC48' />
       </SafeAreaView>
     );
   }
 
   if (error) {
+    const isClusterError = error.includes("not been assigned to a cluster");
     return (
-      <SafeAreaView edges={["top"]} className='flex-1 bg-gray-50 items-center justify-center'>
-        <TouchableOpacity onPress={fetchData} activeOpacity={0.7}>
-          <Text className='text-[13px] text-red-400'>{error}</Text>
-        </TouchableOpacity>
+      <SafeAreaView
+        edges={["top"]}
+        className='flex-1 bg-gray-50 items-center justify-center px-6'
+      >
+        {isClusterError ? (
+          <>
+            <View className='w-20 h-20 rounded-full bg-gray-100 items-center justify-center mb-6'>
+              <Warehouse size={32} color='#9CA3AF' />
+            </View>
+            <Text className='text-[18px] font-[700] text-gray-800 text-center mb-2'>
+              Cluster Assignment Pending
+            </Text>
+            <Text className='text-[14px] text-gray-500 text-center leading-5 mb-6'>
+              {error}
+            </Text>
+            <TouchableOpacity
+              className='bg-[#A7CC48] rounded-xl px-6 py-3'
+              activeOpacity={0.8}
+              onPress={fetchData}
+            >
+              <Text className='text-[14px] font-[600] text-white'>
+                Check Status
+              </Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <TouchableOpacity onPress={fetchData} activeOpacity={0.7}>
+            <Text className='text-[13px] text-red-400'>{error}</Text>
+          </TouchableOpacity>
+        )}
       </SafeAreaView>
     );
   }
