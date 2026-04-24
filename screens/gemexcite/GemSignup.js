@@ -1,42 +1,96 @@
 /** @format */
-import { View, Text, TextInput, TouchableOpacity } from "react-native";
+
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react-native";
+import axios from "axios";
+import { url } from "../url";
+import { toast } from "../components/Toast";
 
 const GemSignup = ({ navigation }) => {
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const signup = async () => {
+    if (!email || !phoneNumber || !password) {
+      toast.show({
+        title: "Missing fields",
+        status: "error",
+        message: "Please fill in email, phone number, and password.",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      await axios.post(`${url}/auth/signup`, {
+        email,
+        password,
+        phoneNumber,
+        userType: "GemExcite",
+      });
+      setLoading(false);
+      toast.show({
+        title: "Success",
+        status: "success",
+        message: "Signup successful. Check your email to verify.",
+      });
+      navigation.navigate("VerifyEmail");
+    } catch (error) {
+      setLoading(false);
+      const errMsg = error?.response?.data?.message || error.message;
+      toast.show({
+        title: "Signup Failed",
+        status: "error",
+        message: errMsg,
+      });
+    }
+  };
 
   return (
-    <View className="px-2 m-3 ">
-      <Text className="font-[600] text-[18px]">Join Excite Trade for Free</Text>
-      <Text className="text-[13px] text-gray-500 mt-0">
+    <View className='px-2 m-3 '>
+      <Text className='font-[600] text-[18px]'>Join Excite Trade for Free</Text>
+      <Text className='text-[13px] text-gray-500 mt-0'>
         Sign up for an account and start selling today.
       </Text>
-      {/* inputs view */}
-      <Text className="mt-4 text-gray-800 text-[12px] font-[500]">
+      <Text className='mt-4 text-gray-800 text-[12px] font-[500]'>
         Phone No
       </Text>
       <TextInput
-        className="w-full h-[44px] rounded p-2 border border-gray-400 mt-1"
-        placeholder="080******"
-        keyboardType="numeric"
+        className='w-full h-[44px] rounded p-2 border border-gray-400 mt-1'
+        placeholder='080******'
+        value={phoneNumber}
+        onChangeText={setPhoneNumber}
+        keyboardType='phone-pad'
       />
-      <Text className="mt-4 text-gray-800 text-[12px] font-[500]">Email</Text>
+      <Text className='mt-4 text-gray-800 text-[12px] font-[500]'>Email</Text>
       <TextInput
-        className="w-full h-[44px] rounded p-2 border border-gray-400 mt-1"
-        placeholder="Enter your email"
+        className='w-full h-[44px] rounded p-2 border border-gray-400 mt-1'
+        placeholder='Enter your email'
+        value={email}
+        onChangeText={setEmail}
+        keyboardType='email-address'
+        autoCapitalize='none'
       />
 
-      <View className="mt-[18px]">
-        <Text className="font-[500] text-gray-800 text-[12px]">Password</Text>
+      <View className='mt-[18px]'>
+        <Text className='font-[500] text-gray-800 text-[12px]'>Password</Text>
         <View style={{ position: "relative" }}>
           <TextInput
             value={password}
             onChangeText={(val) => setPassword(val)}
-            placeholder="*******"
+            placeholder='*******'
             secureTextEntry={!showPassword}
-            className="h-[43px] w-full border p-2 border-gray-400 rounded mt-1 pr-10"
+            className='h-[43px] w-full border p-2 border-gray-400 rounded mt-1 pr-10'
           />
           <TouchableOpacity
             onPress={() => setShowPassword((prev) => !prev)}
@@ -49,30 +103,38 @@ const GemSignup = ({ navigation }) => {
             activeOpacity={0.7}
           >
             {showPassword ? (
-              <EyeOff size={19} className="text-gray-700" />
+              <EyeOff size={19} className='text-gray-700' />
             ) : (
-              <Eye size={19} className="text-gray-700" />
+              <Eye size={19} className='text-gray-700' />
             )}
           </TouchableOpacity>
         </View>
       </View>
-      <TouchableOpacity className="bg-[#A7CC48] h-[43px] rounded justify-center items-center mt-8">
-        <Text className="font-[500]">Proceed</Text>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={signup}
+        className='bg-[#A7CC48] h-[43px] rounded justify-center items-center mt-8'
+      >
+        {loading ? (
+          <ActivityIndicator size='small' color='black' />
+        ) : (
+          <Text className='font-[500]'>Proceed</Text>
+        )}
       </TouchableOpacity>
-      <TouchableOpacity className="mt-2">
-        <Text className="text-[11px]">
+      <TouchableOpacity className='mt-2'>
+        <Text className='text-[11px]'>
           By creating an account, you agree to Excite Trade's{" "}
-          <Text className="text-[#A7CC48]">Terms of Service</Text> and{" "}
-          <Text className="text-[#A7CC48]">Privacy Policy.</Text>
+          <Text className='text-[#A7CC48]'>Terms of Service</Text> and{" "}
+          <Text className='text-[#A7CC48]'>Privacy Policy.</Text>
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => navigation.navigate("Signup")}
-        className="mt-4 flex-row justify-center items-center"
+        className='mt-4 flex-row justify-center items-center'
         activeOpacity={0.7}
       >
         <Text>Already have an account? </Text>
-        <Text className="text-[#A7CC48] font-[500]">Login</Text>
+        <Text className='text-[#A7CC48] font-[500]'>Login</Text>
       </TouchableOpacity>
     </View>
   );

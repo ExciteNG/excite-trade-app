@@ -15,6 +15,10 @@ import VerifyEmail from "./screens/VerifyEmail";
 import OrganizationOnboard from "./screens/offtakers/OrganizationOnboard";
 import CommoditiesOnboard from "./screens/offtakers/CommoditiesOnboard";
 
+// Role onboarding
+import FarmerOnboarding from "./screens/farmers/FarmerOnboarding";
+import GemExciteOnboarding from "./screens/gemexcite/GemExciteOnboarding";
+
 // Role tab navigators
 import FarmerTabNavigator from "./screens/farmers/FarmerTabNavigator";
 import GemTabNavigator from "./screens/gemexcite/GemTabNavigator";
@@ -27,10 +31,10 @@ const SignedOutStack = () => (
   <Stack.Navigator
     screenOptions={{ headerShown: false, animation: "slide_from_right" }}
   >
-    <Stack.Screen name="Onboard" component={Onboard} />
-    <Stack.Screen name="Login" component={Login} />
-    <Stack.Screen name="Signup" component={Signup} />
-    <Stack.Screen name="VerifyEmail" component={VerifyEmail} />
+    <Stack.Screen name='Onboard' component={Onboard} />
+    <Stack.Screen name='Login' component={Login} />
+    <Stack.Screen name='Signup' component={Signup} />
+    <Stack.Screen name='VerifyEmail' component={VerifyEmail} />
   </Stack.Navigator>
 );
 
@@ -39,7 +43,7 @@ const FarmerSignedInStack = () => (
   <Stack.Navigator
     screenOptions={{ headerShown: false, animation: "slide_from_right" }}
   >
-    <Stack.Screen name="FarmerTabs" component={FarmerTabNavigator} />
+    <Stack.Screen name='FarmerTabs' component={FarmerTabNavigator} />
   </Stack.Navigator>
 );
 
@@ -48,7 +52,7 @@ const GemExciteSignedInStack = () => (
   <Stack.Navigator
     screenOptions={{ headerShown: false, animation: "slide_from_right" }}
   >
-    <Stack.Screen name="GemTabs" component={GemTabNavigator} />
+    <Stack.Screen name='GemTabs' component={GemTabNavigator} />
   </Stack.Navigator>
 );
 
@@ -57,7 +61,25 @@ const DefaultSignedInStack = () => (
   <Stack.Navigator
     screenOptions={{ headerShown: false, animation: "slide_from_right" }}
   >
-    <Stack.Screen name="OfftakerTabs" component={OfftakerTabNavigator} />
+    <Stack.Screen name='OfftakerTabs' component={OfftakerTabNavigator} />
+  </Stack.Navigator>
+);
+
+// ─── Farmer Onboarding Stack ─────────────────────────────────────────────
+const FarmerOnboardingStack = () => (
+  <Stack.Navigator
+    screenOptions={{ headerShown: false, animation: "slide_from_right" }}
+  >
+    <Stack.Screen name='FarmerOnboarding' component={FarmerOnboarding} />
+  </Stack.Navigator>
+);
+
+// ─── GemExcite Onboarding Stack ────────────────────────────────────────────
+const GemExciteOnboardingStack = () => (
+  <Stack.Navigator
+    screenOptions={{ headerShown: false, animation: "slide_from_right" }}
+  >
+    <Stack.Screen name='GemExciteOnboarding' component={GemExciteOnboarding} />
   </Stack.Navigator>
 );
 
@@ -66,8 +88,8 @@ const OnboardingStack = () => (
   <Stack.Navigator
     screenOptions={{ headerShown: false, animation: "slide_from_right" }}
   >
-    <Stack.Screen name="OrganizationOnboard" component={OrganizationOnboard} />
-    <Stack.Screen name="CommoditiesOnboard" component={CommoditiesOnboard} />
+    <Stack.Screen name='OrganizationOnboard' component={OrganizationOnboard} />
+    <Stack.Screen name='CommoditiesOnboard' component={CommoditiesOnboard} />
   </Stack.Navigator>
 );
 
@@ -84,8 +106,15 @@ const SignedInStack = () => {
     getUserInfo();
   }, [user]);
 
-  // Pending status — show onboarding regardless of role
+  // Pending status — show onboarding per role
   if (user?.status === "Pending") {
+    const userType = user?.userType ?? user?.data?.userType;
+    if (userType === "Farmer" || userType === "Miner") {
+      return <FarmerOnboardingStack />;
+    }
+    if (userType === "GemExcite") {
+      return <GemExciteOnboardingStack />;
+    }
     return <OnboardingStack />;
   }
 
