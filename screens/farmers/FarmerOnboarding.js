@@ -20,7 +20,7 @@ import {
   Globe,
   Package,
   Layers,
-  Farm,
+  Sprout,
 } from "lucide-react-native";
 import api from "../../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -206,7 +206,7 @@ const FarmerOnboarding = () => {
               }}
             >
               <SectionHeader
-                Icon={Farm}
+                Icon={Sprout}
                 label='Farm Location'
                 color='#A7CC48'
               />
