@@ -1,15 +1,14 @@
 /** @format */
 import rootReducer from "./reducer";
-import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
-
-const middleware = getDefaultMiddleware({
-  immutableCheck: false,
-  serializableCheck: false,
-});
+import { configureStore } from "@reduxjs/toolkit";
 
 const store = configureStore({
   reducer: rootReducer,
-  middleware,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      immutableCheck: false,
+      serializableCheck: false,
+    }),
 });
 
 export default store;
