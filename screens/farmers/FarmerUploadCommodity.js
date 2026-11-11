@@ -10,8 +10,11 @@ import {
   StatusBar,
   Modal,
   FlatList,
+  Image,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import * as ImagePicker from "expo-image-picker";
 import {
   Camera,
   ChevronDown,
@@ -42,22 +45,60 @@ const FarmerUploadCommodity = ({ navigation, route }) => {
   const [commodity, setCommodity] = useState("");
   const [price, setPrice] = useState("");
   const [weight, setWeight] = useState("");
-  const [hasImage, setHasImage] = useState(false);
+  const [image, setImage] = useState(null);
   const [pickerVisible, setPickerVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert(
+        "Permission required",
+        "Please allow photo library access to upload a commodity image."
+      );
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 0.7,
+    });
+
+    if (!result.canceled && result.assets?.length) {
+      setImage(result.assets[0]);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!commodity || !price || !weight) return;
     setLoading(true);
     try {
-      const body = {
-        commodity,
-        pricePerTonne: parseFloat(price),
-        quantity: parseFloat(weight),
-        ...(userRequestId ? { userRequestId } : {}),
-      };
-      await api.post("/farmer/upload-commodity", body);
+      let body;
+      if (image) {
+        body = new FormData();
+        body.append("commodity", commodity);
+        body.append("pricePerTonne", String(parseFloat(price)));
+        body.append("quantity", String(parseFloat(weight)));
+        if (userRequestId) body.append("userRequestId", userRequestId);
+        body.append("image", {
+          uri: image.uri,
+          name: image.fileName ?? "commodity.jpg",
+          type: image.mimeType ?? "image/jpeg",
+        });
+      } else {
+        body = {
+          commodity,
+          pricePerTonne: parseFloat(price),
+          quantity: parseFloat(weight),
+          ...(userRequestId ? { userRequestId } : {}),
+        };
+      }
+      await api.post("/farmer/upload-commodity", body, {
+        headers: image ? { "Content-Type": "multipart/form-data" } : undefined,
+      });
       setSuccess(true);
     } catch (err) {
       alert(
@@ -167,17 +208,24 @@ const FarmerUploadCommodity = ({ navigation, route }) => {
               Commodity Image
             </Text>
             <TouchableOpacity
-              className='bg-white border-2 border-dashed rounded-2xl items-center justify-center py-8'
-              style={{ borderColor: hasImage ? "#A7CC48" : "#D1D5DB" }}
+              className='bg-white border-2 border-dashed rounded-2xl items-center justify-center py-8 overflow-hidden'
+              style={{ borderColor: image ? "#A7CC48" : "#D1D5DB" }}
               activeOpacity={0.8}
-              onPress={() => setHasImage(true)}
+              onPress={pickImage}
             >
-              {hasImage ? (
+              {image ? (
                 <>
-                  <CheckCircle size={28} color='#A7CC48' />
-                  <Text className='text-[13px] font-[600] text-[#A7CC48] mt-2'>
-                    Image Selected
-                  </Text>
+                  <Image
+                    source={{ uri: image.uri }}
+                    className='w-full h-[160px]'
+                    resizeMode='cover'
+                  />
+                  <View className='flex-row items-center gap-1.5 mt-2'>
+                    <CheckCircle size={16} color='#A7CC48' />
+                    <Text className='text-[13px] font-[600] text-[#A7CC48]'>
+                      Image Selected
+                    </Text>
+                  </View>
                   <Text className='text-[11px] text-gray-400 mt-1'>
                     Tap to change
                   </Text>

@@ -84,8 +84,9 @@ const Login = ({ navigation }) => {
 
       <Text className="mt-8 text-gray-800 text-[12px] font-[500]">Email</Text>
       <TextInput
-        className="w-full h-[43px] rounded p-2 border border-gray-400 mt-1"
+        className="w-full h-[43px] rounded p-2 border border-gray-400 mt-1 text-gray-800"
         placeholder="Enter your email"
+        placeholderTextColor="#9CA3AF"
         value={email}
         onChangeText={(val) => setEmail(val)}
       />
@@ -96,8 +97,9 @@ const Login = ({ navigation }) => {
             value={password}
             onChangeText={(val) => setPassword(val)}
             placeholder="*******"
+            placeholderTextColor="#9CA3AF"
             secureTextEntry={!showPassword}
-            className="h-[43px] w-full border p-2 border-gray-400 rounded mt-1 pr-10"
+            className="h-[43px] w-full border p-2 border-gray-400 rounded mt-1 pr-10 text-gray-800"
           />
           <TouchableOpacity
             onPress={() => setShowPassword((prev) => !prev)}

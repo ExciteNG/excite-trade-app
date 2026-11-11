@@ -102,8 +102,9 @@ const OffTakerSignup = ({ navigation }) => {
         Work Email
       </Text>
       <TextInput
-        className="w-full h-[44px] rounded p-2 border border-gray-400 mt-1"
+        className="w-full h-[44px] rounded p-2 border border-gray-400 mt-1 text-gray-800"
         placeholder="Enter your work email"
+        placeholderTextColor="#9CA3AF"
         value={email}
         onChangeText={(val) => setEmail(val)}
       />
@@ -111,8 +112,9 @@ const OffTakerSignup = ({ navigation }) => {
         Phone No
       </Text>
       <TextInput
-        className="w-full h-[44px] rounded p-2 border border-gray-400 mt-1"
+        className="w-full h-[44px] rounded p-2 border border-gray-400 mt-1 text-gray-800"
         placeholder="080*******"
+        placeholderTextColor="#9CA3AF"
         value={phone}
         onChangeText={(val) => setPhone(val)}
         keyboardType="numeric"
@@ -124,8 +126,9 @@ const OffTakerSignup = ({ navigation }) => {
             value={password}
             onChangeText={(val) => setPassword(val)}
             placeholder="*******"
+            placeholderTextColor="#9CA3AF"
             secureTextEntry={!showPassword}
-            className="h-[43px] w-full border p-2 border-gray-400 rounded mt-1 pr-10"
+            className="h-[43px] w-full border p-2 border-gray-400 rounded mt-1 pr-10 text-gray-800"
           />
           <TouchableOpacity
             onPress={() => setShowPassword((prev) => !prev)}

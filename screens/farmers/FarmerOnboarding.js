@@ -11,6 +11,8 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Modal,
+  FlatList,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -21,11 +23,31 @@ import {
   Package,
   Layers,
   Sprout,
+  ChevronDown,
+  CheckCircle,
+  X,
 } from "lucide-react-native";
 import api from "../../services/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch } from "react-redux";
 import { toast } from "../../components/Toast";
+
+const COMMODITY_TYPES = [
+  "Cassava",
+  "Cocoa",
+  "Groundnut",
+  "Maize",
+  "Soybeans",
+  "Palm Oil",
+  "Yam",
+  "Rice",
+  "Sorghum",
+  "Millet",
+  "Tin Ore",
+  "Iron Ore",
+  "Limestone",
+  "Columbite",
+];
 
 const InputField = ({
   label,
@@ -74,6 +96,7 @@ const FarmerOnboarding = () => {
   const [clusterCode, setClusterCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [pickerVisible, setPickerVisible] = useState(false);
   const dispatch = useDispatch();
 
   const isValid =
@@ -157,13 +180,14 @@ const FarmerOnboarding = () => {
       </View>
       <KeyboardAvoidingView
         className='flex-1'
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps='handled'
         >
-          <View className='px-4 pt-5 pb-10'>
+          <View className='px-4 pt-5 pb-24'>
             <View
               className='bg-white rounded-2xl p-4 mb-4'
               style={{
@@ -228,12 +252,23 @@ const FarmerOnboarding = () => {
                 onChangeText={setFarmArea}
                 placeholder='2 hectares'
               />
-              <InputField
-                label='Commodity Produced'
-                value={commodityName}
-                onChangeText={setCommodityName}
-                placeholder='Cassava, Cocoa'
-              />
+              <View className='mb-4'>
+                <Text className='text-[13px] font-[600] text-gray-700 mb-1.5'>
+                  Commodity Produced
+                </Text>
+                <TouchableOpacity
+                  className='flex-row items-center justify-between bg-white border border-gray-200 rounded-xl px-4 h-[50px]'
+                  activeOpacity={0.8}
+                  onPress={() => setPickerVisible(true)}
+                >
+                  <Text
+                    className={`text-[13px] ${commodityName ? "text-gray-800 font-[500]" : "text-gray-400"}`}
+                  >
+                    {commodityName || "Select a commodity"}
+                  </Text>
+                  <ChevronDown size={16} color='#9CA3AF' />
+                </TouchableOpacity>
+              </View>
               <View className='mb-4'>
                 <Text className='text-[13px] font-[600] text-gray-700 mb-1.5'>
                   Production Capacity
@@ -292,6 +327,49 @@ const FarmerOnboarding = () => {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <Modal visible={pickerVisible} transparent animationType='slide'>
+        <View
+          className='flex-1 justify-end'
+          style={{ backgroundColor: "rgba(0,0,0,0.4)" }}
+        >
+          <View className='bg-white rounded-t-3xl px-4 pt-4 pb-8'>
+            <View className='flex-row items-center justify-between mb-4'>
+              <Text className='text-[17px] font-[700] text-gray-800'>
+                Select Commodity
+              </Text>
+              <TouchableOpacity
+                onPress={() => setPickerVisible(false)}
+                activeOpacity={0.7}
+              >
+                <X size={20} color='#6B7280' />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={COMMODITY_TYPES}
+              keyExtractor={(item) => item}
+              style={{ maxHeight: 320 }}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  className='flex-row items-center justify-between py-4 border-b border-gray-50'
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    setCommodityName(item);
+                    setPickerVisible(false);
+                  }}
+                >
+                  <Text className='text-[14px] text-gray-700 font-[500]'>
+                    {item}
+                  </Text>
+                  {commodityName === item && (
+                    <CheckCircle size={16} color='#A7CC48' />
+                  )}
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

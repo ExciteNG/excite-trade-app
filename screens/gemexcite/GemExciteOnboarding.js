@@ -149,13 +149,14 @@ const GemExciteOnboarding = () => {
       </View>
       <KeyboardAvoidingView
         className='flex-1'
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps='handled'
         >
-          <View className='px-4 pt-5 pb-10'>
+          <View className='px-4 pt-5 pb-24'>
             <View
               className='bg-white rounded-2xl p-4 mb-4'
               style={{

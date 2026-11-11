@@ -95,16 +95,20 @@ const OnboardingStack = () => (
 
 // ─── Signed-In Stack — routes based on userType ─────────────────────────────
 const SignedInStack = () => {
-  const [user, setUser] = useState(null);
-
-  const getUserInfo = async () => {
-    const raw = await AsyncStorage.getItem("userInfo");
-    setUser(raw ? JSON.parse(raw) : null);
-  };
+  const { userInfo } = useSelector((state) => state.loginReducer);
+  const [storedUser, setStoredUser] = useState(null);
 
   useEffect(() => {
-    getUserInfo();
-  }, [user]);
+    const hydrate = async () => {
+      const raw = await AsyncStorage.getItem("userInfo");
+      setStoredUser(raw ? JSON.parse(raw) : null);
+    };
+    hydrate();
+  }, []);
+
+  // Redux reflects the latest dispatch (e.g. onboarding completion) immediately,
+  // so status/userType changes don't require logging out and back in.
+  const user = userInfo ?? storedUser;
 
   // Pending status — show onboarding per role
   if (user?.status === "Pending") {

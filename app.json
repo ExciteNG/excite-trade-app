@@ -4,7 +4,7 @@
     "slug": "excite-trade-app",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/app-icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -25,11 +25,21 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.exciteplatform.excitetradeapp"
+      "package": "com.exciteplatform.excitetradeapp",
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos to upload a commodity image.",
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera to take a commodity photo."
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "0f0d8713-96c3-46da-9030-badc8bb57ed8"
