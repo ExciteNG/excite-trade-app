@@ -38,7 +38,9 @@
           "photosPermission": "Allow $(PRODUCT_NAME) to access your photos to upload a commodity image.",
           "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera to take a commodity photo."
         }
-      ]
+      ],
+      "expo-splash-screen",
+      "expo-status-bar"
     ],
     "extra": {
       "eas": {

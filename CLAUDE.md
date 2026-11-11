@@ -4,7 +4,7 @@
 
 | Concern | Technology |
 |---------|-----------|
-| Framework | React Native 0.81 + Expo 54 |
+| Framework | React Native 0.86 + Expo 57 |
 | Navigation | React Navigation (native stack + bottom tabs) |
 | Styling | NativeWind v4 (Tailwind for React Native) |
 | State | Redux v4 + Redux Toolkit v1 |
